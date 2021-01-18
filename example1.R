@@ -10,7 +10,12 @@ str(hflights)
 
 #목적지 확인 - 목적지는 Dest column 에 있음
 
-dest<-hflights$Dest
+dest<-table(dest)
 str(dest)
-table(dest)
+range(dest)
+dest[dest==1]
+dest[dest==9820]
+famous.dest <- dest[dest > 6000]
+famous.dest
 
+barplot(famous.dest)
