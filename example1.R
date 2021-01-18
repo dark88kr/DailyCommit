@@ -19,3 +19,5 @@ famous.dest <- dest[dest > 6000]
 famous.dest
 
 barplot(famous.dest)
+######Example 1 종료########
+#버벅거림 - 앞서 table 함수로 변수 저장한걸 보지 못하고 range 함수 의 결과값이 나오지 않아서 버버
