@@ -13,5 +13,4 @@ str(hflights)
 dest<-hflights$Dest
 str(dest)
 table(dest)
-S
 
