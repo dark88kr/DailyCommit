@@ -21,3 +21,31 @@ install.packages("ggthemes")
 ggplot(data = DF, aes(x=age)) + geom_freqpoly(binwidth=10,size=1.4,colour="orange") + theme_wsj()
 
 #ggplot 페키지 사용시 굳이 도수분포표 안만들어 된다는 교훈이다..
+
+
+#example 3.전국 키피숍 폐업/영업 상황 살펴보기
+#공공데이터포털(http://data.go.kr/)에서 다운가능
+#data.table 패키지는 data.frame과 비슷하지만 속도가 더 빠름
+install.packages("data.table")
+library(data.table)
+library(tidyverse)
+library(ggplot2)
+#data.table의 fread 함수는 한글이 많아 데이터 가 큰 경우 사용하기 좋ㅇ
+DF2 <-fread("example_coffee.csv", header = T, stringsAsFactors = T, data.table = F)
+
+#데이터 살펴보기
+str(DF2)
+glimpse(DF2)
+#data.frame에 tbl_df를 적용하여 tbl_df 속성을 가지게 되고 스크린에 표시될 정도만 행과 열 출력
+DF2 <-tbl_df(DF2)
+str(DF2)
+
+#불필요한 변수 제외 하기
+
+DF2_mo <-subset(DF2, select = c(-adress,-adressBystreet,-dateOfclosure, -startdateOfcessation,
+                                -duedateOfcessation, -dateOfreOpen, -zip))
+str(DF2_mo)
+
+
+
+
