@@ -110,3 +110,36 @@ geom_point(aes(y=Open),colour="red",size=6) + theme_bw()
 
 #2010년부터 폐업보다 창업이 많아지고 있다.
 
+
+
+#example 4.전국 키피숍 규모 파악하기
+#3번 예제와 동일한 데이터 사용
+library(data.table)
+library(tidyverse)
+library(ggplot2)
+
+SIZE <-DF2$sizeOfsite
+SIZE
+summary(SIZE)
+#평균과 중간값에 비해서 MAX가 너무 큰 값이 있다, 결측치도 19건 있음
+plot(SIZE)
+SIZE[SIZE>10000]<-NA
+summary(SIZE)
+#가장 큰 값을 결측치로 만들어 버림...
+SIZE[SIZE==0]<-NA
+#0값을 NA로 만들어 버림
+SIZE<-SIZE[complete.cases(SIZE)]
+#NA값 전체를 벡터에서 삭제
+summary(SIZE)
+
+#20개씩 나눠서 계급 만들기
+DegreeOfSize <- table(cut(SIZE, breaks = (0:72)*20))
+DegreeOfSize
+
+library(ggthemes)
+ggplot(data = DF2, aes(x=sizeOfsite))+
+  geom_freqpoly(binwidth=10,size=1.2,colour="orange")+
+  scale_x_continuous(limits = c(0,300),breaks = seq(0,300,20))+
+  theme_wsj()
+
+#그래프를 보면 30~40 사이즈가 가장많음, 10평대가 가장 많ㅇ
