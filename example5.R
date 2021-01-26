@@ -40,4 +40,32 @@ df<-df[complete.cases(df),]
 #NA값 삭제
 glimpse(df)
 
-#for i 구문으로 , 삭제하고 숫자열 만드는건 다음ㅇ
+#for i 구문으로 , 삭제하고 숫자열 만드는건 다음에
+
+#for i 구문으로 변수를 변환해준다
+
+
+for(i in 3:8){
+  df[,i] <-sapply(df[,i], function(x) gsub(",","",x))
+  df[,i] <-as.numeric(df[,i])
+}
+str(df)
+
+#sapply 함수로 3:8번까지 컬럼 선택 후, gsub함수로 ,를 빈칸으로 치환했다
+#수치형 변경 및 콤마 제거하는 방법
+#전처리 완료
+
+
+#경기도 인구수 추출
+#tapply 함수 사용 , tapply (적용변수, 그룹지을 변수, 적용할 함수)
+pro_popul<-tapply(df$Population,df$provinces,sum)
+pro_popul
+tbl_df(pro_popul)
+#도 구역별로 인구수를 더하라는 함수
+
+gra<-ggplot(df,aes(x=df$provinces,y=df$Population, fill=df$provinces)) +
+  geom_bar(stat="identity") + 
+  theme_wsj()
+gra
+
+#그래프 그리기까지 완성 
