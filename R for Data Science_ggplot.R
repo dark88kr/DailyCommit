@@ -78,3 +78,42 @@ ggplot(data=mpg) +
 #위 그래프와 동일하나 색이 들어감
 
 ######p.18까지 함 
+
+ggplot(data = mpg) +
+  geom_point(mapping = aes(x=displ,y=hwy)) +
+  geom_smooth(mapping = aes(x=displ,y=hwy))
+
+ggplot(data = mpg, mapping = aes(x=displ,y=hwy)) +
+  geom_point() +
+  geom_smooth()
+#같은 코드, 다른 작성 방법
+
+ggplot(data = mpg, mapping = aes(x=,displ, y=hwy)) +
+  geom_point(mapping = aes(color = class)) +
+  geom_smooth()
+#mpg데이터에 x는 displ과 y는 hwy 배치하고 smooth로 선 그리되 
+#point는 class별로 나타내라
+
+ggplot(data = mpg, mapping = aes(x=,displ, y=hwy)) +
+  geom_point(mapping = aes(color = class)) +
+  geom_smooth(data = filter(mpg, class=="subcompact"),se=F)
+
+#mpg데이터에 x는 displ과 y는 hwy 배치하고 point는 class별로 나타내고
+#smooth는 mpg데이터의 class가 subcompact 인 것만 선으로 나타내라
+
+ggplot(data = mpg, mapping = aes(x=displ, y=hwy, color=drv)) +
+  geom_point() +
+  geom_smooth(se=T)
+#geom_smooth의 se = f는 범위 표시 x, se= t는 범위표시 ㅇ
+
+####diamond 데이터 사용
+
+str(diamonds)
+
+ggplot(data = diamonds) +
+  geom_bar(mapping = aes(x=cut))
+
+ggplot(data = diamonds, mapping = aes(x=cut)) + 
+  geom_bar(mapping = aes(fill=clarity))
+
+##p.28 까지 함
