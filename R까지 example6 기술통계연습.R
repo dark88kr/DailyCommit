@@ -45,3 +45,43 @@ salary_list
 
 # 보고싶은 값이 있다면 이렇게 리스트로 담아서 출력하면 한눈에 쉽게 확인 가능.
 
+
+#example 7. 그룹별 평균 구하기 (기술통계)
+#sex 항목을 이용하여 성별 평균 월급 구하기
+
+library(tidyverse)
+library(ggplot2)
+library(ggthemes)
+str(df)
+
+#subset으로 각 성별로 항목 만들어서 평균 구하기보다는 tapply 함수 사용
+#tapply는 변수를 기준으로 그룹만들고 그룹별로 함수 적용, 첫번째 인자를 두번째 인자를 기준으로 세번째 함수 사용
+
+tem <- tapply(df$salary,df$sex,mean, na.rm = T) #na.rm = T 가 없어서 NA 값 나옴
+df %>% group_by(sex) %>% summarize(mean(salary, na.rm = T))
+#같은 결과 값, 다른 함수 사용
+
+#성별 표준편차
+tapply(df$salary,df$sex,sd,na.rm=T)
+df %>% group_by(sex) %>% summarize(sd(salary,na.rm = T))
+
+tapply(df$salary,df$sex,range,na.rm=T)
+
+
+#경력별 평균월급
+tem <- tapply(df$salary,df$career,mean, na.rm = T)
+tapply(df$salary, df$career,sd,na.rm=T)
+tapply(df$salary, df$career,range,na.rm=T)
+a1 <- df[which(df$salary == 1117605),]
+a2 <- df[which(df$salary == 1172399),]
+a3 <- df[which(df$salary == 1245540),]
+a4 <- df[which(df$salary == 1548036),]
+a5 <- df[which(df$salary == 1685204),]
+salay_list_by_career <- list(a1,a2,a3,a4,a5)
+salay_list_by_career 
+
+
+#list 입력 및 tapply 연습 그리고 dplyr 연습.
+
+
+
