@@ -117,3 +117,33 @@ ggplot(data = diamonds, mapping = aes(x=cut)) +
   geom_bar(mapping = aes(fill=clarity))
 
 ##p.28 까지 함
+
+
+ggplot(data = diamonds, mapping = aes(x=cut, fill=clarity)) +
+  geom_bar(alpha = 1/5, position = "identity")
+
+ggplot(data = diamonds, mapping = aes(x=cut, color = clarity)) +
+  geom_bar(fill=NA, position = "identity")
+
+#position = identity는 정확하게 위치 해준다, 그리고 
+#alpha로 색의 투명도를 높이거나 fill=NA로 테두리만 남긴다  
+
+ggplot(data = diamonds, mapping = aes(x=cut, fill = clarity)) +
+  geom_bar(position = "fill")
+
+#position=fill은 같은 높이로 비교하게 해준다
+
+ggplot(data = diamonds, mapping = aes(x=cut, fill= clarity)) +
+  geom_bar(position = "dodge")
+
+#cut 별로 clariry의 그래프를 형성한다. 더 비교하기 쉽게 한다
+
+
+ggplot(data = mpg, mapping = aes(x=class,y=hwy)) + 
+  geom_boxplot()
+
+ggplot(data = mpg, mapping = aes(x=class,y=hwy)) + 
+  geom_boxplot() +
+  coord_flip()
+
+###ggplot 학습 1단계 종료
