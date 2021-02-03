@@ -138,4 +138,35 @@ ggplot(data = delays, mapping = aes(x=delay)) +
 ####p63까지
 
 
+###넘어감 ### to ### Exploratory Data Analysis 까지 넘어옴
+
+library(tidyverse)
+
+#명목변수 - Categorical Variable.
+#연속변수 - Continuous Variable.
+
+#명목변수의 시각화  - barchart
+ggplot(data = diamonds) +
+  geom_bar(mapping = aes(x=cut))
+#barchart는 명목변수 중 변수의 종류가 적을 경우 바차트 사용 가능
+
+diamonds %>% count(cut)
+vi <- diamonds %>% select(carat) %>% range()
+vi
+#연속형 변수의 histogram 사용
+
+ggplot(data = diamonds) +
+  geom_histogram(mapping = aes(x=carat), binwidth = 0.5)
+
+diamonds %>% count(cut_width(carat, 1))
+#-0.5부터 3.5 이하에 몰려 있어 3.5까지 선택 후 다시 그래프 그리기
+
+small <- diamonds %>% filter(carat<3.5)
+ggplot(data = small) +
+  geom_histogram(mapping = aes(x= carat),binwidth = 0.1)
+
+ggplot(data=small, mapping = aes(x=carat, color = cut)) +
+  geom_freqpoly(binwidth=0.1)
+
+###p 86 까지
 
