@@ -169,4 +169,40 @@ ggplot(data=small, mapping = aes(x=carat, color = cut)) +
   geom_freqpoly(binwidth=0.1)
 
 ###p 86 까지
+##########self study ########
+###diamons dataset 확인하기
+diamonds
+?diamonds
 
+sum(is.na(diamonds))
+#diamonds에는 na 값이 없다
+ 
+ggplot(data = diamonds, mapping = aes(x=x)) +
+  geom_histogram()
+
+ggplot(diamonds) +
+  geom_histogram(mapping = aes(x=x), binwidth = 0.1) +
+  coord_cartesian(xlim = c(3,10))
+
+ggplot(diamonds) +
+  geom_histogram(mapping = aes(x=price)) +
+  coord_cartesian(xlim = c(0,5000))
+
+diamonds %>% filter(carat<3) %>% ggplot(mapping = aes(x=carat)) + geom_histogram()
+view(diamonds)
+
+diamonds %>% select(clarity,price) %>% ggplot(mapping = aes(x=price)) +
+  geom_histogram()
+
+diamonds %>% select(cut) %>% distinct()
+#Ideal의 가격은 어떻게 형성 되어 있나?
+ideal <- diamonds %>% filter(cut=="Ideal")
+ideal %>% select(price) %>% range() 
+ideal_price <- ideal %>% filter(price == 326 | price == 18806)
+view(ideal_price)
+
+str(ideal_price)
+ideal_price$clarity
+
+#같은 컷의 종류인데 가격차이가 엄청나다.... 
+#clarity 랑 
