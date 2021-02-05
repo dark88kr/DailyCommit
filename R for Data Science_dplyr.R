@@ -205,4 +205,62 @@ str(ideal_price)
 ideal_price$clarity
 
 #같은 컷의 종류인데 가격차이가 엄청나다.... 
-#clarity 랑 
+#clarity 랑 price의 관계는?
+
+plot(diamonds$clarity,diamonds$price)
+#그림으로는 알수 없음
+
+clarity_if <- diamonds %>% filter(clarity == "IF")
+clarity_i1 <- diamonds %>% filter(clarity == "I1")
+range(clarity_i1$price)
+mean(clarity_if$price)
+median(clarity_if$price)
+
+mean(clarity_i1$price)
+median(clarity_i1$price)
+
+diamonds %>% filter(clarity == "VS1") %>% summarize(mean = mean(price),median(price))
+diamonds %>% filter(clarity == "IF") %>% summarise(mean = mean(price),median(price))
+
+levels(diamonds$clarity)
+#clarity의 최고등급의 가격 범위 369~18806
+#clarity의 최저등급의 가격 범위 326~18806
+#clarity는 가격에 크게 영향을 미치지 않는다
+
+#그러면 cut이 가격에 영향을 미치나?
+diamonds %>% count(cut)
+
+cut_dia_fair <- diamonds %>% filter(cut == "Fair")
+range(cut_dia_fair$price)
+
+range(diamonds$price)
+hi_price <- diamonds %>% filter(price == 18823)
+view(hi_price)
+
+levels(diamonds$cut)
+
+plot(diamonds$cut,diamonds$price)
+ggplot(data = diamonds) +
+  geom_freqpoly(mapping = aes(x=price))
+
+
+diamonds %>% group_by(cut) %>% summarise(mean = mean(price),
+                                        median = median(price),
+                                        max = max(price),
+                                        min = min(price))
+
+diamonds %>% group_by(clarity) %>% summarise(mean = mean(price),
+                                         median = median(price),
+                                         max = max(price),
+                                         min = min(price))
+
+diamonds %>% group_by(color) %>% summarise(mean = mean(price),
+                                         median = median(price),
+                                         max = max(price),
+                                         min = min(price))
+
+diamonds %>% group_by(carat) %>% summarise(mean = mean(price),
+                                         median = median(price),
+                                         max = max(price),
+                                         min = min(price))
+diamonds %>% select(price) %>% summary
