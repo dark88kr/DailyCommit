@@ -263,4 +263,49 @@ diamonds %>% group_by(carat) %>% summarise(mean = mean(price),
                                          median = median(price),
                                          max = max(price),
                                          min = min(price))
-diamonds %>% select(price) %>% summary
+#다이아가격 분포
+
+plot(diamonds$price)
+
+ggplot(data=diamonds, mapping = aes(x=price)) +
+  geom_histogram()
+
+names(table(diamonds$price))
+
+diamonds %>% select(price) %>% boxplot()
+
+#고가의 다이아 몬드가 존재 하고 평균값은 3000 달러 정도이다...
+
+#다이아몬드 최빈값 구하기
+summary(diamonds)
+
+x <- table(diamonds$price)
+length(x)
+names(sort(x))[11602]
+
+##일단 하고 싶은 만큼 했다....
+
+##p85
+
+diamonds %>% count(cut_width(carat, 0.5))
+ggplot(data=diamonds) +
+  geom_histogram(mapping = aes(x=carat),binwidth = 0.5)
+
+diamonds %>% count(cut_width(price, 1000))
+
+table_max_price <- diamonds %>% filter(price == 605)
+table(table_max_price$cut)
+table(table_max_price$clarity)                                                      
+
+cor(diamonds$carat,diamonds$price)
+plot(diamonds$carat,diamonds$price)
+
+
+###p105 까지 함
+
+ggplot(data = diamonds,mapping = aes(x=carat,color=cut)) +
+  geom_freqpoly(binwidth = 0.1)
+
+
+ggplot(data = diamonds, mapping = aes(x=price)) +
+  geom_freqpoly(mapping = aes(color = cut),binwidth = 1000)
