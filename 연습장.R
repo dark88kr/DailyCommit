@@ -1,8 +1,19 @@
 #####연습장#####
+install.packages("tidymodels")
+library(tidymodels)
 library(tidyverse)
 library(Hmisc)
 library(MASS)
 library(psych)
+
+
+install.packages("installr")
+library(installr)
+check.for.updates.R()
+
+install.R()
+version
+
 car <- Cars93
 dim(car)
 colnames(car)
@@ -32,10 +43,13 @@ temp_car %>% dplyr::select(Cylinders) %>% distinct()
 
 temp_car_cy <- temp_car %>% filter(Cylinders == 4 | Cylinders == 6 | Cylinders == 8)
 str(temp_car_cy)
-hist(temp_car_cy$mpgs)+xlim=c((1:4)*10)
 
-ggplot(data = temp_car_cy, aes(x=mpgs)) +
-  geom_histogram()
+temp_car_cy %>% cor(Price,mpgs, use = "complete.obs")
 
-boxplot(temp_car_cy$mpgs, horizontal = T)
+cor(temp_car_cy$Price,temp_car_cy$mpgs)
 
+colnames(temp_car_cy)
+
+car_lm <- lm(Price ~ Type + mpgs + Horsepower + AirBags, data = temp_car_cy)
+
+summary(car_lm)

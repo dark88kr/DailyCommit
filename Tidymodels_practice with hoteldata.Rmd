@@ -1,0 +1,21 @@
+---
+title: "Tidymodel_practice with hoteldata"
+author: "yonggi.yeom"
+date: '2021 11 17 '
+output: html_document
+---
+
+#### Tidymodel Practice
+
+이 문서는 #Julia Silge 의 불로그와 유투브를 참고하여 Tidymodel 을 연습하는 문서이다
+tidymodel은 분석모델을 위한 패키지이고 기존의 분석을 위해서는 다양한 패키지를 사용하지만
+위 패키지하나로 분석할수 있는 패키지여서 이걸로 연습하려 한다
+
+## Install Package or Library Package
+```{r}
+library(tidymodels)
+
+
+```
+
+s
