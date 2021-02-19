@@ -1,8 +1,10 @@
 #####연습장#####
 library(tidyverse)
+install.packages("Hmisc")
 library(Hmisc)
 library(MASS)
 library(psych)
+library(data.table)
 car <- Cars93
 dim(car)
 colnames(car)
@@ -42,3 +44,20 @@ colnames(temp_car_cy)
 car_lm <- lm(Price ~ Type + mpgs + Horsepower + AirBags, data = temp_car_cy)
 
 summary(car_lm)
+
+#### 후원기록 불러오기 ##
+
+do <- fread(input = "HA_Donation count.csv",
+            header = T,
+            sep = ',',
+            na.strings = c('NA'),
+            strip.white = T)
+            
+
+view(do)
+describe(do)
+do %>% filter(YOB == "2072") #생년월일이 2072년생이 없기 때문에 로 처리
+is.na(do$YOB) # rlw
+do[280,]
+do$YOB <- ifelse(do$YOB > 2021,NaN,do$YOB)
+describe(do$YOB)
