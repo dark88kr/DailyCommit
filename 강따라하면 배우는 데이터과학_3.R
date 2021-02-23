@@ -65,4 +65,53 @@ df1 %>% left_join(df2)
 #df2를 기준으로 하며 left 조인과 동일함
 df1 %>% right_join(df2)
 
+### 4장 데이터 시각화
+#변수를 확인하는 방법
+
+gapminder %>% select(gdpPercap,lifeExp) # 1700개 가까이 되는 데이터라서 패턴? 모양 찾기 어려움
+gapminder %>% select(gdpPercap,lifeExp) %>% summary() #간단하게 산술평균으로 확인은 가능
+cor(gapminder$gdpPercap,gapminder$lifeExp) #두 변수간의 상관관계도 확인 가능 0.58
+
+#그래서 더 쉽게 확인 하기 위해 시각화를 한다.
+
+oper = par(mfrow=c(2,2))
+hist(gapminder$lifeExp)
+hist(gapminder$gdpPercap, nclass = 50)
+hist(log10(gapminder$gdpPercap), nclass = 50)
+plot(log10(gapminder$gdpPercap), gapminder$lifeExp, cex=0.5)
+per(oper)
+
+#상관관계는 method = "pearson"(피어슨 상관계수) 가 기본값
+#변수간의 관계가 비선형인 경우 "kendall" 또는 "spearman" 사용하여 비모수방법인 "캔달" "스피어만" 사용
+cor(log10(gapminder$gdpPercap),gapminder$lifeExp) #평균소득에 로그하여 정규분포에 맞게 설계, 상관계수 증가
+
+#그래프를 그려서 변수간의 관계 모양을 확인하는 것도 시각화의 중요한 역활 중 하나.
+
+oper = par(mfrow=c(2,2))
+gapminder %>% ggplot(aes(x=lifeExp)) + geom_histogram()
+gapminder %>% ggplot(aes(x=gdpPercap)) + geom_histogram()
+gapminder %>% ggplot(aes(x=gdpPercap)) + geom_histogram() + scale_x_log10()
+gapminder %>% ggplot(aes(x=gdpPercap, y=lifeExp)) + geom_point() +scale_x_log10() + geom_smooth()
+
+#베이스 그래프와 비교하여, ggplot는 다양한 플룻 타입을 하나의 개념으로 처리하고, 다변량데이터에 효율적
+
+
+#변수의 종류에 따른 데이터 시각화 기법 - diamonds 와 mpg 데이터 사용
+
+#수량형 - 구체적인 수치를 가지는 변수 gpdPercap, lifeExp, 키, 몸무게
+#범주현 - 소수의 가능한 값을 가지는 변수 국가, 성별, 학점(순서형)
+
+#하나의 수량형 변수 - 도수 히스토그램
+#시각화 하여 1.이상점 2.전반적분포 3.어떤변환하면 정규분포와 가까울지 4.히스토그램 binwidth값 조정
+#gdpPercap 수량형 변수 사용
+
+gapminder %>% ggplot(aes(x=gdpPercap)) + geom_histogram() 
+gapminder %>% ggplot(aes(x=gdpPercap)) + geom_histogram() + scale_x_log10()
+gapminder %>% ggplot(aes(x=gdpPercap)) + geom_freqpoly() +scale_x_log10()
+gapminder %>% ggplot(aes(x=gdpPercap)) + geom_density() +scale_x_log10()
+
+
+
+
+
 
