@@ -111,7 +111,45 @@ gapminder %>% ggplot(aes(x=gdpPercap)) + geom_freqpoly() +scale_x_log10()
 gapminder %>% ggplot(aes(x=gdpPercap)) + geom_density() +scale_x_log10()
 
 
+#하나의 범주형 변수 - 막대그래프(bar char)가 유일하다 - table 함수를 통한 통계량을 출력하는 것도 도움된다
 
+diamonds %>% ggplot(aes(x=cut)) + geom_bar()
+
+table(diamonds$cut)
+round(prop.table(table(diamonds$cut))*100,2)
+
+diamonds %>% 
+  group_by(cut) %>%  #cut으로 그룹으로 나눠서 
+  tally() %>%  #그룹별로 수량을 계산한다 - 범주형만 되나?
+  mutate(pct = round(n/sum(n)*100,1)) #계산된 수량을 바탕으로 % 값으로 계산한다
+
+
+gapminder %>% group_by(gdpPercap) %>% tally() #각 값별로 카운드함
+gapminder %>% group_by(continent) %>% tally() #명목변수 그룹핑하여 숫자 계산하는거 맞음
+
+
+#두개의 수량형변수 시각화 - 산점도 사용
+#중복된 관측치가 많을때는 geom_jitter함수 사용 하여 조금 흩어 준다.
+
+diamonds %>% ggplot(aes(carat,price)) + geom_point()
+diamonds %>% ggplot(aes(carat,price)) + geom_point(alpha = 0.1) #점들의 밀도가 높으면 alpha 값을 줄여준다
+data(mpg)
+str(mpg)
+mpg %>% ggplot(aes(cyl,hwy)) + geom_point()
+mpg %>% ggplot(aes(cyl,hwy)) + geom_jitter()
+
+#산점도로 시각화 시 주의 점
+#데이터의 개수가 많을때는 1000개 정도 sampling 하여 표본화 
+#데이터의 개수가 많늘때는 alpha 값을 줄여서 투명하게 만들어 본다
+#일변량과 마찮가지로 어떻게 정규분포화 시킬지 확인
+#데이터의 상관관계의 강함과, 선형 또는 비선형인지 확인
+#이상점이 있는지 - 인과관계 생각하기
+
+
+#두개 이상의 연속변수를 다룰 경우 base 함수 인 pairs가 유용하다
+pairs(diamonds %>% sample_n(1000))
+
+#p79 차례
 
 
 
