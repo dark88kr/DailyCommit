@@ -149,7 +149,83 @@ mpg %>% ggplot(aes(cyl,hwy)) + geom_jitter()
 #두개 이상의 연속변수를 다룰 경우 base 함수 인 pairs가 유용하다
 pairs(diamonds %>% sample_n(1000))
 
-#p79 차례
+#2개의 변수 시각화 - 수량형변수와 범주형 변수 - x=범주, y=수량 -boxplot
+
+mpg %>% ggplot(aes(x=class,y=hwy)) + geom_boxplot() + geom_point(col="gray") + coord_flip()
+mpg %>% ggplot(aes(x=class,y=hwy)) + geom_boxplot() + geom_jitter(col="gray") + coord_flip()
+
+#범부형 변수의 순서를 고려한다 - reorder함수로 class를 hwy의 중앙값으로 재정의 (범주형만 가능)
+mpg %>% mutate(class = reorder(class,-hwy, median)) %>% ggplot(aes(class,hwy)) +
+  geom_jitter(col = "red") + geom_boxplot(alpha = 0.5) + coord_flip()
+
+#x축과 y축 교환이 필요할때는 coord_flip() 함수 사용
+
+#2개의 변수 시각화 - 두개의 범주형 변수,많이 없다..
+#xtabs와 mosaicplot
+
+glimpse(data.frame(Titanic))
+?Titanic
+mosaicplot(Titanic,main = "Survival on the Titanic", col=T)
+
+apply(Titanic, c(3,4), sum)
+round(prop.table(apply(Titanic,c(3,4),sum),margin = 1),2)
+
+apply(Titanic,c(2,4),sum)
+round(prop.table(apply(Titanic,c(2,4),sum),margin = 1),2)
+
+
+
+#2차원이 넘어가는 변수의 표현은 geom의 형식에 ase의 함수로 size나 컬러 등으로 표현한다
+gapminder %>% filter(year == 2007) %>%  #gapminder데이터의 2007년 자료만 
+  ggplot(aes(gdpPercap,lifeExp))+       #ggplot로 x=gdpPercap y=lifeExp로 사용
+  geom_point() +                        #geom_point의 레이어로 그림 그리고
+  scale_x_log10() +                     #gdpPercap변수에 log 값 취해서
+  ggtitle("2007")                       #타이틀은 2007로 그려라
+
+
+gapminder %>% filter(year == 2007) %>%          #gapminder데이터의 2007년 자료만
+  ggplot(aes(gdpPercap,lifeExp))+               #ggplot로 x=gdpPercap y=lifeExp로 사용
+  geom_point(aes(size=pop, col=continent)) +    #geom_point의 레이어에 pop와 continent변수를 크기와 색으로
+  scale_x_log10() +                             #gdpPercap변수에 log 값 취해서
+  ggtitle(2007)                                 #타이틀은 2007로 그려라
+
+
+#더 많은 변수를 위해서는 facet_*함수 이용
+#예제로 국가별 평균 기대 수명의 추이 - group=속성 하면 변수별로 geom_line레이어 추가 된다
+
+gapminder %>% ggplot(aes(year,lifeExp, group=country))+
+  geom_line()
+
+gapminder %>% ggplot(aes(year,lifeExp, group=country, col=continent))+
+  geom_line() 
+
+#둘다 새봄이 그림처럼 생겼다...
+gapminder %>%
+  ggplot(aes(year,lifeExp,group=country))+  #x=year, y=lifeExp 국가별로 그룹지어서
+  geom_line() +                             #선으로 그룹지어진 국가별 그림 그리고
+  facet_wrap(~ continent)                   #continent함수로 창으로 나눠서 보여주라
+
+
+
+###정리
+
+#1. glimpse로 변수 타입과 행의 개수 파악
+#2. pairs로 전체 데이터간의 그림 그리고 - 행이 많은 경우 1000개 정도로 sample_n(1000) 추출하여 그리기
+#3. 주요변수 하나씩 그리기 - 수량 히스토그램, 범주 막대그래프
+#4. 두 변수간의 관계 - geom_point와 geom_boxplot 함수 사용
+#5. 두변수 + 추가 변수를 geom 레이어로 사이즈 컬러 등 사용하여 그림에 추가
+#6. 차원이 많은 경우 facet 함수로 나누기
+
+
+
+
+
+
+
+
+
+
+
 
 
 
