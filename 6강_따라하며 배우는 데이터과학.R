@@ -79,12 +79,44 @@ par(opar)
 #그럼 10.88%sㄴ 큰 값은가? 작은 값은가? - 표본의 크기가 클수록 낮은 p값 획득 가능
 
 ##신뢰구간 ?
-#95% 신뢰구간은 무엇인가? p-119차레
+#95% 신뢰구간은 무엇인가? - 100개의 평균 1, sd = 1.8의 샘플 추출하여 신뢰구간 양끝과 평균 구해서 그림
 
+set.seed(1606)
+B <- 1e2
+conf_intervals <- 
+  data.frame(b=rep(NA,B),
+             lower=rep(NA,B),
+             xbar=rep(NA,B),
+             upper=rep(NA,B))
+conf_intervals
+true_mu <- 1.0
+for(b in 1:B){
+  (y_star <- rnorm(10,true_mu,1.8))
+  conf_intervals[b, ] = c(b=b,
+                          lower=t.test(y_star)$conf.int[1],
+                          xbar=mean(y_star),
+                          upper=t.test(y_star)$conf.int[2])
+}
+conf_intervals <- conf_intervals %>% 
+  mutate(lucky= (lower<=true_mu & true_mu<=upper))
 
-
+glimpse(conf_intervals)
+table(conf_intervals$lucky)
+conf_intervals %>% ggplot(aes(b,xbar,col=lucky)) +
+  geom_point() + 
+  geom_errorbar(aes(ymin=lower,ymax=upper)) +
+  geom_hline(yintercept = true_mu,col='red')
 
   
+#100개의 샘플을 만들었으나 그중에 6개의 추출된 샘플의 평균은 신뢰구간에 포함되지 않는다
+#샘플의 크기가 커질수록 신뢰구간의 크기는 줄어든다
+
+round(diff(t.test(y)$conf.int),2) #95%의 신뢰구간은 2.56시간이다
+#1/10크기 즉, 0.256시간으로 신뢰구간을 줄이고 싶다면 10000개의 샘플로 분석하면된다
+#신뢰구간의 크기는 1/sqrt(n)
+
+
+
 
 
 
