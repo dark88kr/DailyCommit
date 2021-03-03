@@ -56,3 +56,35 @@ mpg %>% filter(model == "new beetle")
 #일단 hwy가 40이 넘는 것은 이상치로 확인된다. by boxplot로 
 
 
+#범주형변수(성공과실패) - table, xtabs, barplot, binom.test
+#여론조사의 찬성과 반대, 웹의 클릭 또는 클릭하지 않음
+#요약통계 - table, xtabs, prop.table로 상대도수
+#시각화 barplot가 요용, 신뢰구간은 binom.test로 성공률의 신뢰구간 과 검정 가능
+
+set.seed(1606) #책과 동일한 값 추출을 위해 동일 랜덤변수 설정
+n <- 100 #100개의 샘플
+p <- 0.5 #지지율 50%로 설정
+x <- rbinom(n,1,p) #이항정구분포에 따라 100개 샘플 생성하고 1의 확률은 50%로 설정
+x <- factor(x, levels = c(0,1), labels = c("no","yes")) # factor로 설정하고 0과1 레벨설정하고 이름은 N, Y
+x
+table(x) #x의 도수분포
+prop.table(table(x)) #x의 상대도수
+barplot(table(x)) #x의 시각화
+
+#실제 지지율 50%으로 설정했지만 모른다고 가정...
+#H0 : p = 0.5, H1 : p != 0.5
+
+binom.test(x=length(x[x=="yes"]),n=length(x),p=0.5,alternative = "two.sided")
+binom.test(54,n=length(x),p=0.5,alternative = "two.sided") #성공횟수, 시도횟수, 검증하고 싶은 성공의 확률
+#p-value : 0.4841로 H0를 기각할 증거는 희박하다, P=0.5이다
+(0.64-0.44)/2 # 0.1 즉 10%가 오차한계이다
+#표본이 100개 늘어나면 오차한계는 1/10로 줄어 들었다. - sqrt(n)의 범위로 오차한계가 줄어든다.
+
+
+
+#두 변수의 분석 
+#수량ㅎ
+
+
+
+
