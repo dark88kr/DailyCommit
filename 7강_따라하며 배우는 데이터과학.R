@@ -83,7 +83,7 @@ binom.test(54,n=length(x),p=0.5,alternative = "two.sided") #성공횟수, 시도
 
 
 #두 변수의 분석 
-#수량ㅎ
+#수량형
 
 
 
