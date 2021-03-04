@@ -83,8 +83,53 @@ binom.test(54,n=length(x),p=0.5,alternative = "two.sided") #성공횟수, 시도
 
 
 #두 변수의 분석 
-#수량형
+#수량형x, 수량형 y - plot, ggplot2 :: geom_point + jitter, alpha= 
+#상관관계 계산 , 선형모형에 적합도 표기, 로버스트 회귀분석, 비선형에는 LOESS 사용
 
+ggplot(mpg,aes(cty,hwy)) + geom_jitter() + geom_smooth(method = "lm") #산점도 그리기
+
+#상관관계 계산시 사용하는 cor 함수는 피어슨상관계수가 기본 - 선형관계의 강도를 -1~1사이의 숫자로 표기
+#상관관계 계산시 이상치의 영향을 많이 받으므로 캔달의 타우나 스피어만의 로로 계산 가능
+cor(mpg$cty,mpg$hwy)
+with(mpg,cor(cty,hwy))
+with(mpg,cor(cty,hwy,method = "kendall"))
+with(mpg,cor(cty,hwy,method = "spearman"))
+
+#선형회귀 분석시 lm모형에 사용되는 것은 최소제곱법으로 추정한다(잔차의 제곱합을 최소화 하는 방법)
+hwy_lm <- lm(hwy~cty,data = mpg)
+summary(hwy_lm)
+
+#선형모형을 구했으면, 이 모형이 적합한지 확인하기
+#multiple R-squared : 0.9138, Adjusted R-squared : 0.9134
+#R^2의 값은 총 변동 중, 회귀선으로 설명가능한 값 - 0.9138이면 회귀식이 전체 변동의 91.38% 설명한다.
+#설명변수가 추가 될때마다  R^2의 값은 항상 상승  -> Adjusted R^2이 등장
+#F-statistic은 HO : 설명변수가 반응변수에 효과가 없다, - P-value가 작기 때문에 설명변수가 효과 있다 의미.
+
+predict(hwy_lm) #기존데이터를 사용하기 때문에 다른 데이터 사용시 newdata 옵션 사용
+resid(hwy_lm) #잔차 확ㅇ
+predict(hwy_lm, newdata = data.frame(cty=c(10,20,30)))
+
+#위 선형회귀식에 cty의 값이 10,20,30 일때 14.27, 27.64, 41.02로 hwy값 예측함.
+
+#그럼 위에 생성한 회귀식이 맞는 것인가? - 4가지 조건에 충족되는가?
+#회귀분석 진단 - 중요
+opar <- par(mfrow = c(2,2))
+plot(hwy_lm,las=1)
+opar
+
+#___________3월 5일에 다시 _____
+
+#1.잔차의 정규성 - 잔차의 분포가 정규분포를 따른다 - Shapiro-Wilk test 와 Kolmogorov-Smirnov test
+#표본이 2000개 미만 - shapiro, 2000개이상 kolmogorov
+#shapiro.test에 회귀식의 잔차항 넣는다 H0 : 표본의 모집단이 정규분포를 따른다, H1 : 정규분포 아님
+shapiro.test(hwy_lm$residuals) 
+#p-value : 0.02945, 0.05 보다 작으므로 5%유의수준에서 잔차가 정규분포를 따른다를 기각한다.
+
+#2.잔차의 독립성 - Durbin-Watson 검증
+car::durbinWatsonTest(hwy_lm)
+
+install.packages("car")
+lmtest :: dwtest(hwy_lm)
 
 
 
