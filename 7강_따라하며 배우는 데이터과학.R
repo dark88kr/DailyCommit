@@ -117,19 +117,56 @@ opar <- par(mfrow = c(2,2))
 plot(hwy_lm,las=1)
 opar
 
-#___________3월 5일에 다시 _____
+#일단 진도 나가고, 회귀진단에 관한 내용은 따로 공부할 예정
+#https://rstudio-pubs-static.s3.amazonaws.com/190997_40fa09db8e344b19b14a687ea5de914b.html - 참고 예정
 
-#1.잔차의 정규성 - 잔차의 분포가 정규분포를 따른다 - Shapiro-Wilk test 와 Kolmogorov-Smirnov test
-#표본이 2000개 미만 - shapiro, 2000개이상 kolmogorov
-#shapiro.test에 회귀식의 잔차항 넣는다 H0 : 표본의 모집단이 정규분포를 따른다, H1 : 정규분포 아님
-shapiro.test(hwy_lm$residuals) 
-#p-value : 0.02945, 0.05 보다 작으므로 5%유의수준에서 잔차가 정규분포를 따른다를 기각한다.
+#선형회귀에 최소제곱방법은 이상치에 민감하게 반응한다.
+#로버스트 회귀분석은 이상치에 민감하지 않다.
 
-#2.잔차의 독립성 - Durbin-Watson 검증
-car::durbinWatsonTest(hwy_lm)
+install.packages("MASS")
+library(MASS)
+set.seed(123) #책과 동일한 결과를 위해서
+lqs(stack.loss ~ .,data = stackloss)
 
-install.packages("car")
-lmtest :: dwtest(hwy_lm)
+lm(stack.loss ~.,data = stackloss)
+
+#선형관계의 강도만 측정, 비선형 모형의 경우 비선형회귀를 사용하거나, 다항회귀분석 사용
+#이러한 모형보다 비선형의 경우, 아무런 가정도 하지 않는 평활법(smoothing) 사용
+#그 중에서도 국소회귀방법 LOESS가 가장 많이 사용된다
+plot(hwy ~ displ, data = mpg)
+mpg_lo <- loess(hwy~displ,data = mpg)
+mpg_lo
+summary(mpg_lo)
+
+ggplot(mpg,aes(displ,hwy)) + 
+  geom_point()+
+  geom_smooth()
 
 
+
+#두 변수의 분석 
+#범주형x, 수량형 y - 병렬상자그림을 사용하여 데이터를 시각화 한다
+#집단간에 평균, 중앙값의 차이가 존재하는지 각 집단의 분산은 유사한지등
+#lm함수로 ANOVA선형모형적합
+#plot.lm으로 잔차의 분포를 살펴본다
+
+#ANOVA(분산분석)
+#x가 범주형이고 y가 수량형인 경우, 분산분석을 사용한다.(집단개수 2개 two-sample-t.test는 특별한 경우)
+#분산분석도 선형회귀분석처럼 수학적으로는 동일한 모형이다.
+
+mpg %>% ggplot(aes(class,hwy)) + geom_boxplot()
+#분산분석 실행
+hwy_lm2 <- lm(hwy ~ class,data = mpg)
+summary(hwy_lm2)
+
+#classrk pickup 이면 연비가 -7.92만큼 감소한다.
+#표준오차 1.617이면 95%신뢰수간은 -7.92+-1.96*162 = [-11.1,-4.74]로 신뢰구간
+#자유도가 227로 t값은 z값과 유사하기 때문에 z분포의 95%값 1.96 사용
+#H0 : 평균 0, H1 : 평균 1, p-value가 유효하므로 HO 기각
+#평균 연비 차이가 다른 Class와 차이가 없을때, -7.92감소로 관측될 확률은  0 에 가깝다.H0 기각
+
+#분산분석 역시 3가지 가정 필요
+#1.잔차의 분포가 독립
+#2.잔차의 분산이 동일
+#3.잔차의분포가 전규분포를 따른ㄷ
 
