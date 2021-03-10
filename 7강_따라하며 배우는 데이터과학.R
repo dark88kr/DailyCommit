@@ -223,4 +223,4 @@ predict(ch_lm, data.frame(temperature=30),type="response")
 #96.87로 성공한다 -> 96.87%로 oring이 파괴된다
 
 
-#7강 종ㄹ
+#7강 종료
