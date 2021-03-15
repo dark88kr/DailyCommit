@@ -43,5 +43,25 @@ coef(ad_cvfit, s="lambda.1se")
 length(which(coef(ad_cvfit, s="lambda.min")>0)) #48개
 length(which(coef(ad_cvfit, s="lambda.1se")>0)) #24개
 
-#9.1.4 알파값 찾기는 나중
+#9.1.4 알파값 찾기 - cv.glmnet를 이용한 교차검증은 주어진 a 값에 최적의 람다값 찾아준다
+#a=1 : 라쏘모형이 디폴트 값이다.
 
+set.seed(1607)
+foldid <- sample(1:10,size = length(y),replace = T)
+cv1 <- cv.glmnet(x,y,foldid = foldid, alpha=1,family='binomial')
+cv0.5 <- cv.glmnet(x,y,foldid = foldid, alpha=0.5,family='binomial')
+cv0 <- cv.glmnet(x,y,foldid = foldid, alpha=0,family='binomial')
+
+par(mfrow=c(2,2))
+plot(cv1, main="Alpha=1.0")
+plot(cv0.5, main="Alpha=0.5")
+plot(cv0, main="Alpha=0.0")
+plot(log(cv1$lambda), cv1$cvm, pch=19, col="red",
+     xlab="log(Lambda)", ylab=cv1$name, main="alpha=1.0")
+points(log(cv0.5$lambda), cv0.5$cvm, pch=19, col="grey")
+points(log(cv0$lambda), cv0$cvm, pch=19, col="blue")
+legend("topleft", legend=c("alpha= 1", "alpha= .5", "alpha 0"),
+       pch=19, col=c("red","grey","blue"))
+
+
+#라쏘 모형, 나무 모형, 랜덤포레스트, 부스팅은 나중에 공부 할거
