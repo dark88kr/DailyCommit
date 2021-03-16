@@ -1,6 +1,7 @@
 ############################R for Data Science 책 실습 
 ######Chapter 3 Data Transformation with dplyr
 
+install.packages('nycflights13')
 library(nycflights13)
 library(tidyverse)
 flights
@@ -17,6 +18,9 @@ head(flights)
 
 #11월과 12월에 비행기록이 있는 모든 비행기 찾기
 nov_dec <- filter(flights, month == 11 | month == 12)
+fl <- tbl_df(flights)
+glimpse(fl)
+
 
 #실제 month에 11월 과 12월만 있는지 확인
 nov_dec %>% select(month) %>% distinct()
