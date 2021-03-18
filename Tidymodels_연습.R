@@ -34,4 +34,4 @@ lm_mod <- linear_reg() %>% set_engine("lm") #lm 모형을 설정하고 lm_mod에
 lm_fit <- lm_mod %>% fit(width ~ initial_volume * food_regime, data = urchins)
 lm_fit
 
-
+#오늘은 배운거 노트에 정리하기 210318
