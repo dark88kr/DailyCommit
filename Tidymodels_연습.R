@@ -69,4 +69,4 @@ ggplot(plot_data, aes(x = food_regime)) +
   labs(y = "urchin size")
 
 #하나의 모델로 피팅시켜둠
-
+#210322 건강 문제로 하루 ㅅ
