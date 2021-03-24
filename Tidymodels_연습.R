@@ -64,13 +64,14 @@ plot_data
 ggplot(plot_data, aes(x = food_regime)) + 
   geom_point(aes(y = .pred)) + 
   geom_errorbar(aes(ymin = .pred_lower, 
-                    ymax = .pred_upper),
+                    ymax = .pred_upper),쉼
                 width = .2) + 
   labs(y = "urchin size")
 
 #하나의 모델로 피팅시켜둠
 #210322 건강 문제로 하루 ㅅ
 #210323 허리통증이 완화되지 않아 하루 ㅅ
+#210324 허리통증으로 하루 쉼
 
 
 쉼
