@@ -72,6 +72,11 @@ ggplot(plot_data, aes(x = food_regime)) +
 #210322 건강 문제로 하루 ㅅ
 #210323 허리통증이 완화되지 않아 하루 ㅅ
 #210324 허리통증으로 하루 쉼
-#210325 허리통증으로 하루 쉼  
 
-쉼
+#선형 모델 이외의 베이지안 방식으로 모델 피팅을 원함
+#베이지안 모델 피팅을 위해서 사전 확률도 이력 해야함
+
+install.packages("rstanarm")
+prior_dist <- rstanarm::student_t(df = 1)
+
+
