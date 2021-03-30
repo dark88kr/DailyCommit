@@ -93,6 +93,13 @@ prior_dist <- rstanarm::student_t(df = 1)
 devtools::install_github("allisonhorst/palmerpenguins") #설치
 library(palmerpenguins) #iris데이터 대신 사용 
 
+remotes::install_github("allisonhorst/palmerpenguins")
+library(palmerpenguins)
+data(package = 'palmerpenguins')
+head(penguins)
+
+pen <- penguins
+
 #column 설명 : flipper = 날개, bill = 주둥이 (dbl : 실수, int:정수)
 
 #tidyverse의 5가지 함수 
@@ -160,3 +167,21 @@ geom_point(aes(color = as_factor(species), size = body_mass_g, alpha = 0.7))
 #facets 한면 - 그려진 그래프를 변수별로 나눌때 사용
 
 #coord_fixed() 사용하면 x축과 y축의 비율을 맞춰준다
+
+table(pen$species)
+pen %>% select(species) %>% table()
+pen %>% group_by(islands) %>% summarise(table(species))
+
+summary(pen)
+pen <- tbl_df(pen)
+glimpse(pen)
+
+install.packages("skimr")
+library(skimr)
+library(Hmisc)
+Hmisc::describe(pen)
+
+
+ggplot(data=pen,aes(x=bill_length_mm,y=bill_depth_mm))+
+  geom_point(color=species)
+  
