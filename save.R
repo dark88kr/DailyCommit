@@ -57,3 +57,19 @@ ggplot(plot_data, aes(x = food_regime)) +
   geom_errorbar(aes(ymin = .pred_lower, 
                     ymax = .pred_upper),
                 width = .2) +  labs(y = "urchin size")
+
+#베이지안 모델로 예측
+#베이지안 모델 사용시 사전 분포를 지정해줘야한다.
+#데이터 탐색 전에 분포를 지정해야 하기 때문에 보수적으로 가우시안분포를 사용한다.
+
+prior_dist <- rstanarm::student_t(df=1) 
+
+#베이지안 모델 사용시 모델피팅에 랜덤으로 생성된 숫자가 포함 되므로 set.seed로 결과치를 일정하게 한다
+
+set.seed(123)
+bayes_mod <- linear_reg() %>% set_engine("stan",
+                                         prior_intercept = prior_dist,
+                                         prior = prior_dist)
+bayes_fit <- bayes_mod %>% fit(width ~ initial_volume*food_regime, data = urchins)
+print(bayes_fit)
+tidy(bayes_fit)
