@@ -73,3 +73,15 @@ bayes_mod <- linear_reg() %>% set_engine("stan",
 bayes_fit <- bayes_mod %>% fit(width ~ initial_volume*food_regime, data = urchins)
 print(bayes_fit)
 tidy(bayes_fit)
+
+bayes_plot_data <- 
+  new_data %>% 
+  bind_cols(predict(bayes_fit,new_data = new_data)) %>% 
+  bind_cols(predict(bayes_fit,new_data = new_data,type = "conf_int"))
+bayes_plot_data
+
+ggplot(data = bayes_plot_data,aes(x= food_regime))+
+  geom_point(aes(y=.pred))+
+  geom_errorbar(aes(ymin = .pred_lower,
+                    ymax = .pred_upper),
+                width = .2) + labs(y="urchin size")
