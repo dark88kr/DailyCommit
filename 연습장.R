@@ -61,3 +61,20 @@ is.na(do$YOB) # rlw
 do[280,]
 do$YOB <- ifelse(do$YOB > 2021,NaN,do$YOB)
 describe(do$YOB)
+
+
+library(palmaerpenguins)
+penguins
+library(tidyverse)
+
+pen <- penguins
+pen %>% split(.$species) %>% 
+  map(~lm(bill_length_mm~bill_depth_mm,data = .))
+  
+
+nested_df <- pen %>%
+  group_by(species) %>% 
+  nest() %>% ungroup(species)
+
+nested_df %>% 
+  mutate(model = map(data, ~lm(bill_length_mm~bill_depth_mm, data = pen)))
