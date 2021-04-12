@@ -35,6 +35,22 @@ flight %>%
   mutate(prop = n/sum(n)) #prop라는 변수를 생성하고 전체 n에서 각 n을 나눠서 %로 표시 할수 있게 한다.
 #전체의 16%가 늦었다.
 
-#tidymodels 첫번째 와 두번째 한글 해석 해서 출력하기, 그리고 R 코드로 복기
-#회사에서 했ㅇ
+flight %>% skimr ::skim(dest,carrier)
+
+#로지스틱 모델을 생성할때, dest와 carrier의 함수는 더미 변수로 사용될 예정이며 model.matrix로변경해여한다.
+#더미 변수가 너무 많아지나, 중요하게 자주 사용될 변수가 아니므로 모델이 복잡해질수 있다.
+#recipe 함수에서 처리하는 방법 설명
+#하우스 데이터의 우편번호와 같은 역활을 할수 있다.
+#기존의 테스트 트레인 데이터를 나누는 것도 간단하게 rsample 패키지로 가능하다
+?rsample
+
+
+set.seed(555) #홈페이지와 동일하게 랜덤 난수 설정
+data_split <- initial_split(flight,prop = 3/4) #3/4을 training으로 입력
+
+train_data <- training(data_split) #트레인데이터
+test_data <- testing(data_split)  #테스트 데이터
+
+
+
 
