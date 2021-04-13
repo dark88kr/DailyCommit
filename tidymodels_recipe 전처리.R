@@ -51,6 +51,8 @@ data_split <- initial_split(flight,prop = 3/4) #3/4을 training으로 입력
 train_data <- training(data_split) #트레인데이터
 test_data <- testing(data_split)  #테스트 데이터
 
+#회사에서 작성함, 한번에 업데이트 예저
+
 
 
 
