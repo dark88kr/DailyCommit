@@ -3,7 +3,8 @@
 #recipes
 
 library(tidymodels) 
-library(nycflights13)   
+library(tidyverse)
+library(nycflights13)
 library(skimr)   
 
 #뉴욕 비행 데이터로 어떤 비행기가 30분 늦게 도착하는지 예측해보자
@@ -51,8 +52,30 @@ data_split <- initial_split(flight,prop = 3/4) #3/4을 training으로 입력
 train_data <- training(data_split) #트레인데이터
 test_data <- testing(data_split)  #테스트 데이터
 
-#회사에서 작성함, 한번에 업데이트 예저
 
+flight_rec <- recipe(arr_delay ~. , data = train_data)
+#위에 사용한 함수는 ~표시 왼쪽은 y, 오른쪽은 x이며 .의 의미는 전체 변수를 의미한다
+#앞서 이야기 했던 flight 와 time_hour는 예측에는 사용하지 않으나 
+#특정값을 식별하기 위해서 남겨둔 데이터 이며 이는 예측에 사용되지 않는다
+#예측에서 제외하기 위해서 는 해당 변수를 제외하고 x 자리에 입력하면 되나
+#recipe 함수의 role 함수로 업데이트 한다
+
+flight_rec <- 
+  recipe(arr_delay ~ . , data = train_data) %>%
+  update_role(flight, time_hour, new_role = "ID") #두 변수를 ID로 업데이트 
+
+summary(flight_rec)
+#확인하면 role에 각 컬럼의 역활이 지정되어 있다
+#ID, predictor
+
+flight %>% 
+  dplyr::distinct(date) %>% 
+  mutate(numeric_date = as.numeric(date))
+
+#날짜를 숫자(numeric)으로 변경하면 엑셀처럼 숫자가 나온다
+#날짜를 숫자로 변경하면 선형회귀로 결과 도출할때 선형 추세의 형태를 가지게 되므로 이점이 될수 있다
+#하지만 날짜 자체에서 의미있는 변수를 추출할수도 있다
+#요일이나 달, 그리고 날짜가 공휴일인지 등의 의미를 추출할수 잇다.
 
 
 
