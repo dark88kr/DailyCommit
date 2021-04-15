@@ -77,5 +77,18 @@ flight %>%
 #하지만 날짜 자체에서 의미있는 변수를 추출할수도 있다
 #요일이나 달, 그리고 날짜가 공휴일인지 등의 의미를 추출할수 잇다.
 
+#let's do all three of these by adding to our recipe
+#preprocess for date column with recipe 
+
+flight_rec <- 
+  recipe(arr_delay ~ . , data = train_data ) %>%  #y와 x의 컬럼 지정 
+  update_role(flight, time_hour, new_role = "ID") %>%  #필요없는 변수를 x에서 제외
+  step_date(date, features = c("dow","month")) %>%  #월과 요일 컬럼 생성
+  #날짜 기준으로 timeDate의 패키지에서 미국 휴일에 포함되는지에 대한 이진 컬럼생성
+  step_holiday(date, holidays = timeDate ::listHolidays("US")) %>%  
+  step_rm(date) #모델에서 날짜 변수를 삭제
+
+#turn our attention to the variable types of our predictors
+#in logistic regression model need numeric preditors, not factor predictors.
 
 
