@@ -92,4 +92,6 @@ flight_rec <-
 #in logistic regression model need numeric preditors, not factor predictors.
 
 #recipe 함수로 전처리 완료 추후 업데이트 예정 - 작업은 R studio에서 함.
+#recipe 함수로 완료 
+#3편 차례
 
