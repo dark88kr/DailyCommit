@@ -91,6 +91,108 @@ flight_rec <-
 #turn our attention to the variable types of our predictors
 #in logistic regression model need numeric preditors, not factor predictors.
 
+#turn our attention to the variable types of our predictors
+#in logistic regression model need numeric preditors, not factor predictors.
+#factor 요인인 "dest"와 "origin"의 경우 정상적인 절차로는 여러 컬럼의 이진더미변수로 생성
+#recie 함수에 factor를 더미변수로 생성하지 않게 알려줘여 하는데
+#많은 모델에는 더미변수로 전화된 숫자 변수가 많이 필요 없고, 항상 선호되는건 아니다
+
+#recipe에서는 더미변수 변화보다 더 잘 작동하는 모델링 외부 목적으로 사용 가능
+
+
+flights_rec <- 
+  recipe(arr_delay ~ ., data = train_data) %>% 
+  update_role(flight, time_hour, new_role = "ID") %>% 
+  step_date(date, features = c("dow", "month")) %>% 
+  step_holiday(date, holidays = timeDate::listHolidays("US")) %>% 
+  step_rm(date) %>% 
+  step_dummy(all_nominal(),-all_outcomes())
+#개별 변수에 단계적으로 접근하지 않고 여러변수를 한번에 적용했다
+#all_nominal은 요인, 또는 문자인 모든 변수 선택
+#all_outcomes는 모든 결과 변수를 제거
+#둘을 한번에 적용하면 결과변수가 아닌 모든 요인 또는 문자열에 대한 더미변수 생성
+#이 식에서는 "origin", "dest", and "carrier", date_dow" ,"date_month" 변수 포함
+
+#recipe에서는 각 변수별로 각각 함수를 적용할 필요가 없다.
+#이말은 recipe 함수가 각 변의 타입과 role을 알고있어서
+#알아서 변수를 선택한다.
+
+flights_rec <- 
+  recipe(arr_delay ~ ., data = train_data) %>% 
+  update_role(flight, time_hour, new_role = "ID") %>% 
+  step_date(date, features = c("dow", "month")) %>% 
+  step_holiday(date, holidays = timeDate::listHolidays("US")) %>% 
+  step_rm(date) %>% 
+  step_dummy(all_nominal(), -all_outcomes()) %>% 
+  step_zv(all_predictors())
+#학습데이터가 단일값을 가질 경우, 열에서 제거하므로 
+#step_dummy단계이후 recipe에서 추가 가능하다.
+
+#recipe 전처리 끝
+
+lr_mod <- 
+  logistic_reg() %>% 
+  set_engine("glm")
+
+
+flight_wflow <- 
+  workflow() %>% 
+  add_model(lr_mod) %>% 
+  add_recipe(flights_rec)
+flight_wflow
+
+#모델 마다 다른 레시피가 필요한 경우, workflow 로 모델과 레시피로 적합시킨다
+
+
+flights_fit <- 
+  flight_wflow %>% 
+  fit(data = train_data)
+
+#fit 함수로 위에서 설정한 workflow 함수에 train data로 학습시킨다
+#적합시킨 데이터로 확인하기
+
+flights_fit %>%
+  pull_workflow_fit() %>% 
+  tidy()
+
+#변수별 추정치와 통계값 p.value 확인 가능
+
+
+#처음으로 돌아가서, 우리는 30분 이상 늦은 비행기기를 예측하는 것이 목표
+#훈련된 workflow로 예측하기
+#1. lr_mod로 모델을 준비했고
+#2. flights_rec로 데이터 전처리 및 요인 전처리
+#3. flights_wflow 로 모델과 전처리를 적합
+#4. fit 함수로 훈련 시킴
+
+predict(flights_fit, test_data)
+#마지막으로 테스트 데이터로 예측
+#outcome로 지정된 컬럼이 factor로 되어 있기 때문에 predict로 예측된 결과는
+#처음 지정한 "late", "on_time" 두가지 값으로 표현된다.
+#확률변수와 함께 지정하기 위해서 
+
+flights_pred <- 
+  predict(flights_fit, test_data, type = "prob") %>%
+  bind_cols(test_data %>% select(arr_delay, time_hour, flight))
+
+flights_pred  
+
+#어떻게 모델의 선능을 평가할까?
+#roc_curve, roc_auc 로 사용
+
+flights_pred %>% 
+  roc_curve(truth = arr_delay, .pred_late) %>%
+  autoplot()
+
+flights_pred %>% 
+  roc_auc(truth = arr_delay, .pred_late)
+#0.765 값이 나왔다, 나쁘지 않다.
+
+#recipe로 전처리하고 이전에 배운 모델로 확인 완료
+
+
+
+
 #recipe 함수로 전처리 완료 추후 업데이트 예정 - 작업은 R studio에서 함.
 #recipe 함수로 완료 
 #3편 차례
@@ -100,4 +202,7 @@ flight_rec <-
 
 #포트폴리오 전략, 1.선형 단항, 다항회귀, 2. 로지스틱, 분류분석 3. open API. - 결과 만들기
 #위 3개 이상의 포트폴리오 R markdown으로 pdf 파일 생성.
+
+
+
 
