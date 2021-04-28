@@ -13,4 +13,5 @@ library(vip)
 data(cells, package = "modeldata")
 cells
 
-#잠시 통계 공뷰부주
+#잠시 통계 공뷰부주중
+#책읽ㄱ
