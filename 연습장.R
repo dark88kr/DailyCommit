@@ -87,5 +87,7 @@ mcar<- mutate(am = ifelse(am,"au","mu"))
 ?mtcars
 glimpse(mcar)
 
+mtcars$cyl <- as.factor(cyl, level = c("4","6","8"))
+
 
 
