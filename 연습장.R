@@ -79,4 +79,9 @@ nested_df <- pen %>%
 nested_df %>% 
   mutate(model = map(data, ~lm(bill_length_mm~bill_depth_mm, data = pen)))
 
-#오늘은 못하겠어요,... 잠와요..
+
+library(tidymodels)
+library(tidyverse)
+str(mtcars)
+mcar<- mutate(am = ifelse(am,"au","mu"))
+
