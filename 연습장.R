@@ -84,4 +84,8 @@ library(tidymodels)
 library(tidyverse)
 str(mtcars)
 mcar<- mutate(am = ifelse(am,"au","mu"))
+?mtcars
+glimpse(mcar)
+
+
 
