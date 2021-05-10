@@ -1,0 +1,101 @@
+---
+title: "Walmart data_predict weekly sales_regression"
+author: "yonggi.yeom"
+date: "2021<eb>뀈 5<ec>썡 10<ec>씪"
+output:
+  html_document: null
+  pdf_document: default
+  df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+# 캐글의 Walmart 데이터 활용
+
+캐글의 walmart 데이터를 이용하여 회귀분석으로 값 예측 및 캐글에 분석 결과 제출이 목표이다
+
+## 이번 프로젝트의 목표
+**EDA** 과정에서는 개미가 먹이를 탐색하듯이 방향성없이 각 컬럼값을 최대한 내 궁금증이 풀릴때까지
+그래프도 그려보고, 기술적 분석 하여 충분히 이해가 되도록 탐색 예정이다
+
+결과 제출이 가시적인 목표이지만, 전체 데이터를 탐색하고 내가 필요한 플롯을 그려보고 스스로 이해하는 과정이
+이번 프로젝트의 핵심이다.
+
+속도보다는 방향성에, 방향성보다는 탐색하는 과정에 대한 이해와 필요한 기술을 찾아보고 
+내가 스스로 소화하는 것이 목표이다
+
+
+## Walmart 데이터의 구성 및 소개
+
+45개의 월마트 상점의 데이터와 각 상정의 sales 를 예측하는 것이 목표이다
+
+또한 프로모션 인한 이벤트를 진행하며, 이는 markdown 컬럼으로 나타나며, 
+이러한 이벤트는 슈퍼볼, 노동절, 추수감사절, 크리스마스 이전에 진행된다 
+공휴일을 포함하는 주의 sale의 예측값은 평가에서 5배의 가중치가 부여 된다.
+
+### Walmart 데이터 구성
+
+#### stores.csv
+45개 상점의 유형과 크기를 나타낸다
+
+```{r}
+w_stores <- read.csv("w_stores.csv")
+head(w_stores,5)
+```
+
+#### train.csv
+
+2010-02-05 부터 2012-11-01 까지의 데이터가 포함된 훈련 데이터이며 컬럼은 아래와 같다
+
+Store - 상점번호
+Dept - 부서번호
+Date - 주(week)
+Weekly_Sales -  지정된 상점에서 지정된 부서의 판매(y, 종속변수)
+IsHoliday - 특별한 휴일이 포함된 주인지 아닌지 (위의 stores 데이터에서 이야기하는 공휴일 포함주)
+
+```{r}
+w_train <-  read.csv("w_train.csv")
+head(w_train, 5)
+```
+
+#### test
+
+Weekly_Sales 컬럼을 제외하고 train 데이터와 완전히 동일하다.
+
+```{r}
+w_test <- read.csv("w_test.csv")
+head(w_test,5)
+```
+
+#### features
+
+이 파일에는 지정된 날짜의 상점, 부서 및 지역 활동과 추가 데이터가 포함되어 있으며 컬럼은 아래와 같다
+
+Store - 상점번호
+Date - 주(week)
+Temperature - 해당 지역의 평균 온도 
+Fuel_Price - 해당 지역의 연료 비용
+MarkDown1-5 - 실행중인 프로모션과 관련된 데이터이며 2011년 11월 이후만 사용 가능 하며 모든 상점에서 항상사용x
+              빈칸은 NA로 표기됨
+CPI - 소비자 물가 지수
+Unemployment - 실업
+IsHoliday - 특별한 휴일이 포함된 주인지 아닌지 (위의 stores 데이터에서 이야기하는 공휴일 포함주)
+
+FYI
+Super Bowl: 12-Feb-10, 11-Feb-11, 10-Feb-12, 8-Feb-13
+Labor Day: 10-Sep-10, 9-Sep-11, 7-Sep-12, 6-Sep-13
+Thanksgiving: 26-Nov-10, 25-Nov-11, 23-Nov-12, 29-Nov-13
+Christmas: 31-Dec-10, 30-Dec-11, 28-Dec-12, 27-Dec-13
+
+```{r}
+w_features <- read.csv("w_features.csv")
+head(w_features,5)
+```
+
+
+```{Pakage}
+library(tidymodels)
+```
