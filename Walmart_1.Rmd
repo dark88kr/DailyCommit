@@ -96,6 +96,42 @@ head(w_features,5)
 ```
 
 
-```{Pakage}
+```{r, results = 'hide'}
 library(tidymodels)
 ```
+
+## 데이터 셋 합치기
+
+### train 과 test 셋 합치기
+
+train 데이터와 test 데이터를 합치고 나머지 데이터셋 까지 합쳐서 전처리를 진행해야지만
+test셋과 train 셋의 전처리 과정이 동일하기 때문에 오류 없이 예측 결과가 잘 나올수 있다.
+
+합치는 과정은 r 기본 함수인 rbind와 tidy함수인 bind_rows가 있는데 rbind 사용시 test 셋과 train 셋의
+컬럼 수가 달라서 오류가 발생한다, 따라서 가장 기본이 되는 train 셋과 test 셋 합칠때는 bind_rows 사용한다
+
+```{r}
+alldata <- bind_rows(w_train,w_test)
+
+alldata %>% head(5)
+alldata %>% tail(5)
+```
+
+train 셋이 위로 test 셋이 아래로 합쳐 지면서 위의 데이터는 Weekly_Sales 컬럼의 값은 있지만 
+아래의 데이터는 해당 컬럼의 값이 NA로 표기 된다
+
+### alldata와 stores 데이터 합치기
+
+```{r,results="hide"}
+alldata2 <-  alldata %>% left_join(w_stores,by="Store")
+```
+
+```{r}
+alldata2 %>% names()
+alldata2 %>% head(5)
+```
+
+
+
+
+
