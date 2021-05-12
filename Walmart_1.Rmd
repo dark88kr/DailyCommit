@@ -131,7 +131,38 @@ alldata2 %>% names()
 alldata2 %>% head(5)
 ```
 
+### alldata2와 features합치기
+
+```{r}
+alldata_fin <- alldata2 %>% left_join(w_features,by = c("Store","Date"))
+alldata_fin %>% names()
+```
 
 
+## 전체 합쳐진 데이터로 전치리 시작
 
+### 같은 컬럼인 IsHoliday.x, IsHoliday.y 중 하나의 컬럼을 삭제하고 컬럼명 변경하기
+
+아래 식에서 확인할수 있듯이 같은 컬럼이 두번 들어 가 있다.
+
+```{r}
+alldata_fin %>% select(IsHoliday.x,IsHoliday.y)
+```
+
+둘중 하나를 삭제하고 남은 하나의 이름을 변경하기 위해 select 함수 사용 하여 마지막 변수를 제외하고
+다시 데이터로 집어 넣는다
+그리고 names 함수로 5번째 컬럼인 IsHoliday.x의 컬럼을 IsHoliday로 변경한다.
+
+```{r}
+alldata_fin2 <-  alldata_fin %>% select(1:16) 
+names(alldata_fin2)[5] <- c("IsHoliday")
+alldata_fin2 %>% colnames()
+```
+
+컬럼의 이름의 시작이 대문자로 시작하여 변수를 사용하기 어려움이 있어 소문자로 변경한다.
+
+```{r}
+colnames(alldata_fin2) <- tolower(colnames(alldata_fin2))
+colnames(alldata_fin2)
+```
 
