@@ -1,7 +1,7 @@
 ---
 title: "Walmart data_predict weekly sales_regression"
 author: "yonggi.yeom"
-date: "2021<eb>뀈 5<ec>썡 10<ec>씪"
+date: "2021-05-10"
 output:
   html_document: null
   pdf_document: default
@@ -96,7 +96,7 @@ head(w_features,5)
 ```
 
 
-```{r, results = 'hide'}
+```{r,results = 'hide',message=FALSE,warning=FALSE}
 library(tidymodels)
 ```
 
@@ -146,7 +146,7 @@ alldata_fin %>% names()
 아래 식에서 확인할수 있듯이 같은 컬럼이 두번 들어 가 있다.
 
 ```{r}
-alldata_fin %>% select(IsHoliday.x,IsHoliday.y)
+alldata_fin %>% select(IsHoliday.x,IsHoliday.y) %>% head(10)
 ```
 
 둘중 하나를 삭제하고 남은 하나의 이름을 변경하기 위해 select 함수 사용 하여 마지막 변수를 제외하고
