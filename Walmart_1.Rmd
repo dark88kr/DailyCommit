@@ -95,7 +95,7 @@ w_features <- read.csv("w_features.csv")
 head(w_features,5)
 ```
 
-
+## 중요함수 불러오기
 ```{r,results = 'hide',message=FALSE,warning=FALSE}
 library(tidymodels)
 ```
@@ -166,3 +166,30 @@ colnames(alldata_fin2) <- tolower(colnames(alldata_fin2))
 colnames(alldata_fin2)
 ```
 
+
+### 컬럼 탐색 하기
+```{r,results = 'hide',message=FALSE,warning=FALSE}
+library(skimr)
+skimr::skim(alldata_fin2)
+
+```
+
+skimr 함수를 통해서 각 컬럼의 na 값과 컬럼의 특성을 확인 가능하다 
+numeric변수가 아닌 설명형 변수라면 각 범주의 변수의 수 만큼의 수치형 메트릭스로 변경해야한다(modle.metrix 사용)
+
+일단 markdown1~5까지의 총 5개의 변수가 numeric변수라는게 너무 이해가 안된다.
+markdown 컬럼부터 확인해 보자
+
+```{r}
+alldata_fin2 %>% select(markdown1) %>% distinct()
+promotion <- alldata_fin2 %>% select(10:14)
+promotion %>% colnames()
+
+```
+
+해당 컬럼의 값은 markdown 즉 프로모션을 진행 했을때 나오는 소득을 표기한 값으로 당연히 numeric 변수이며 
+프로모션이 자주 있는 것이 아니기 때문에 na값이 많을 수 밖에 없다.
+
+
+
+해당 na 값을 어떻데 처리할지 모르겟지만 일단 다른 변수 부터 살펴 보자
