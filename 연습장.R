@@ -89,5 +89,5 @@ glimpse(mcar)
 
 mtcars$cyl <- as.factor(cyl, level = c("4","6","8"))
 
-
+# 오늘은 휴시
 
