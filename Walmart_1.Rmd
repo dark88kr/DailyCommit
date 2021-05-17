@@ -98,6 +98,7 @@ head(w_features,5)
 ## 중요함수 불러오기
 ```{r,results = 'hide',message=FALSE,warning=FALSE}
 library(tidymodels)
+library(car)
 ```
 
 ## 데이터 셋 합치기
@@ -193,3 +194,20 @@ promotion %>% colnames()
 
 
 해당 na 값을 어떻데 처리할지 모르겟지만 일단 다른 변수 부터 살펴 보자
+
+#### weeklu_sales Y값부터
+
+```{r}
+hist(w_train$Weekly_Sales)
+
+```
+
+왼쪽으로 치우쳐진 모습으로 car 패키지의 powerTransform 사용하여 변수 변환 확인해 보려 했으나, 
+컬럼의 값이 음수가 포함되어 있어 해당 함수를 사용하지 못하였다.
+일반적으로 위 그래프 처럼 멱함수의 그래프 모습을 지닌 변수의 경우, 
+log 변환이나, 제곱근 또는 둘다 시행 할수도 있어 각각의 그래프를 확인해 보자
+
+
+
+
+
