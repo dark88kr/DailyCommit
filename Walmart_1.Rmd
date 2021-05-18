@@ -207,6 +207,22 @@ hist(w_train$Weekly_Sales)
 일반적으로 위 그래프 처럼 멱함수의 그래프 모습을 지닌 변수의 경우, 
 log 변환이나, 제곱근 또는 둘다 시행 할수도 있어 각각의 그래프를 확인해 보자
 
+변수 변환에 관해서는 ##### https://www.kaggle.com/issactoast/korean-elaticnet-with-tidymodels
+참고 하였다.
+
+간단한 변수 변환이 아닌 sign 함수와 abs 그리고, sign과 log, abs를 함께사용하는 코드를 사용하는지 모르겠지만
+현재 멱분포를 지니고 있는 y값의 변수 변환을 가장 정규분포와 비슷하게 변경하는 방법이라서 
+해당 함수를 사용 하였으며 이해를 돕기 위해 
+모든 그래프를 보여 주고 그중, 가장 독립분포를 따르는 제곱근 변환을 선택하였다
+
+```{r}
+w_train %>% ggplot(aes(x=sign(Weekly_Sales))) + geom_histogram()
+w_train %>% ggplot(aes(x=abs(Weekly_Sales))) + geom_histogram()
+w_train %>% ggplot(aes(x =sign(Weekly_Sales)*log(abs(Weekly_Sales)+2))) + geom_histogram()
+w_train %>% ggplot(aes(x =sign(Weekly_Sales)*log(abs(Weekly_Sales)+1))) + geom_histogram()
+w_train %>% ggplot(aes(x=sign(Weekly_Sales)*(abs(Weekly_Sales))^(1/4))) + geom_histogram() #선택
+w_train %>% ggplot(aes(x=sign(Weekly_Sales)*(abs(Weekly_Sales))^(1/5))) + geom_histogram()
+```
 
 
 
