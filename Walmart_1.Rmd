@@ -15,7 +15,8 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # 캐글의 Walmart 데이터 활용
 
-캐글의 walmart 데이터를 이용하여 회귀분석으로 값 예측 및 캐글에 분석 결과 제출이 목표이다
+캐글의 walmart 데이터를 이용하여 회귀분석으로 값 예측 및 캐글에 분석 결과 제출이 목표이며
+ISSAC님의 캐글의 글과 유투브를 참고하고, 필요한 함수는 COPY하여 사용하였음을 미리 알려두는 바이다.
 
 ## 이번 프로젝트의 목표
 **EDA** 과정에서는 개미가 먹이를 탐색하듯이 방향성없이 각 컬럼값을 최대한 내 궁금증이 풀릴때까지
@@ -223,6 +224,29 @@ w_train %>% ggplot(aes(x =sign(Weekly_Sales)*log(abs(Weekly_Sales)+1))) + geom_h
 w_train %>% ggplot(aes(x=sign(Weekly_Sales)*(abs(Weekly_Sales))^(1/4))) + geom_histogram() #선택
 w_train %>% ggplot(aes(x=sign(Weekly_Sales)*(abs(Weekly_Sales))^(1/5))) + geom_histogram()
 ```
+
+#### Markdown 간의 상관관계 확인
+
+Markdown 은 프로모션의 값을 난타낸 변수이고, 해당 변수는 na 값이 많아서 상관관계가 높은 변수부터 제외할 예정이다
+
+```{r}
+install.packages("naniar")
+library(naniar)
+w_features %>% select_if(~sum(is.na(.))>0) %>%   gg_miss_var() #na가 있는 컬럼 확인하고 그림 그리기
+
+w_features %>% select(,5:9)->promo #Markdown 만 모아서 분석하기
+
+plot(promo) #상관관계 그림 그리기
+cor(promo,use = "pairwise.complete.obs") #상관계 확인
+
+promo_exclude_mark4 <- promo %>% select(-MarkDown4) #1번과 4번의 강한 상관관계로 4번을 제외하고 다시계산
+plot(promo_exclude_mark4)
+cor(promo_exclude_mark4, use = "pairwise.complete.obs")
+
+alldata_fin2_exclude <- alldata_fin2 %>% select(-"markdown4")
+
+```
+
 
 
 
