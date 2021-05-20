@@ -249,5 +249,23 @@ alldata_fin2_exclude <- alldata_fin2 %>% select(-"markdown4")
 
 
 
+### cpi와 unemployment na 값 확인 하기
+
+```{r}
+alldata_fin2_exclude %>% 
+  mutate(year = lubridate::year(date)) %>% 
+  mutate(month = lubridate :: month(date)) %>% 
+  group_by(year,month) %>% 
+  summarise(count_na_cpi = sum(is.na(cpi)),
+            count_na_unemp = sum(is.na(unemployment))) %>% 
+  filter(count_na_cpi > 0 | count_na_unemp > 0)
+```
+
+해당 값을 확인하면 13년 5,6,7 3개월에만 해당 값이 na로 입력되어있다.
+해당 변수의 경우 na 값을 0으로 대체가 불가능 하다, 
+소비자 물가 지수와 실업률의 경우 0의 값이 나올수 없기 때문에 다른 값으로 대체해야한다.
+
+시계열 모델을 이용하여 날짜를 기준으로 해당 값들 채울수 있지만, 아직 시계열 분석을 배우지 않아서
+해당 값은 13년도 평균 값 또는 평년 5,6,7 월의 평균값으로 채울 예정이다.
 
 
