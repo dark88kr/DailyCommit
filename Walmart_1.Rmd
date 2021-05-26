@@ -321,6 +321,6 @@ alldata_fin2_exclude$unemployment <- as.numeric(alldata_fin2_exclude$unemploymen
 summary(alldata_fin2_exclude)
 ```
 
-
+### 휴일 변수의 비중과  weekly_sales의 관계 확인 
 
 
