@@ -323,4 +323,24 @@ summary(alldata_fin2_exclude)
 
 ### 휴일 변수의 비중과  weekly_sales의 관계 확인 
 
+```{r}
+alldata_fin2_exclude %>% 
+  count(isholiday) %>%
+  mutate(prop = n/sum(n))
+
+alldata_fin2_exclude %>% 
+  mutate(isholiday = factor(isholiday)) %>% 
+  group_by(isholiday) %>% 
+  summarise(sale = mean(weekly_sales,na.rm = T))
+
+alldata_fin2_exclude %>% 
+  count(type) %>% 
+  mutate(prop = n/sum(n))
+
+alldata_fin2_exclude %>% 
+  group_by(type) %>% 
+  summarise(sale = mean(weekly_sales,na.rm = T))
+
+```
+
 
