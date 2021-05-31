@@ -234,7 +234,7 @@ Markdown 은 프로모션의 값을 난타낸 변수이고, 해당 변수는 na 
 library(naniar)
 w_features %>% select_if(~sum(is.na(.))>0) %>%   gg_miss_var() #na가 있는 컬럼 확인하고 그림 그리기
 
-w_features %>% select(,5:9)-> promo #Markdown 만 모아서 분석하기
+w_features %>% select(5:9)-> promo #Markdown 만 모아서 분석하기
 
 plot(promo) #상관관계 그림 그리기
 cor(promo,use = "pairwise.complete.obs") #상관계 확인
@@ -349,5 +349,18 @@ alldata_fin2_exclude %>%
 ### 소비자 물가지수, 실업률과 sale 관계
 
 세 변수 모두 연속형 수치를 가지고 있는 변수 이다.
+전체 데이터의 컬럼값을 사용할 예정인데, cor 함수의 경우 na값이 있으면 전체 값을 na로 반환한다
+따라서 na가 있는 row를 삭제 하는 방법과 na가 있는 위치에서 연산을 건너뛰는 방법이 있다
+1. use =  "complete.obs" - na 가 있는 row 삭제
+2. use = "pairwise.complete.obs" - na가 있는 위치에서 연산 스킵
+
+```{r}
+alldata_fin2_exclude %>% select(cpi,unemployment,weekly_sales) %>% cor(use = "pairwise.complete.obs")
+
+```
+
+cpi와 unemployment는 -0.3 정도의 약한 상관관계가 있으나, 두 컬럼 모두 weekly_sales와는 관계가 낮았다
+
+
 
 
