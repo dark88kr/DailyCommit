@@ -15,8 +15,15 @@ flights %>% colnames()
 
 weather
 
+
+flights %>% mutate(date = as.Date(time_hour))
+
+
+
+
 set.seed(123)
-flight <- flights %>% mutate(
+flight <- flights %>% 
+  mutate(
   arr_delay = ifelse(arr_delay >=30 , "late", "on_time"),
   arr_delay = factor(arr_delay), 
   date = as.Date(time_hour)
@@ -203,8 +210,8 @@ flights_pred %>%
 #포트폴리오 전략, 1.선형 단항, 다항회귀, 2. 로지스틱, 분류분석 3. open API. - 결과 만들기
 #위 3개 이상의 포트폴리오 R markdown으로 pdf 파일 생성.
 
-#복사해서 올ㄹ
+#복사해서 올
 
-
+cc
 
 
