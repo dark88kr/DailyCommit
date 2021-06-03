@@ -91,5 +91,8 @@ mtcars$cyl <- as.factor(cyl, level = c("4","6","8"))
 
 # 오늘은 휴식
 
+#ggplot2 pratices
+
+mpg <- as.data.frame(ggplot2::mpg) 
 
 
