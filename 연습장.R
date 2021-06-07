@@ -96,3 +96,4 @@ mtcars$cyl <- as.factor(cyl, level = c("4","6","8"))
 mpg <- as.data.frame(ggplot2::mpg) 
 
 
+# 독서로 대체
