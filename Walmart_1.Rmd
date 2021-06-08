@@ -410,11 +410,41 @@ names(wal_all_data)
 
 ```
 
+### 전처리 이후 데이터 나누기
+
 하나의 데이터로 전처리 작업을 끝낸 이후 train과 test 데이터를 분리하여 train으로 적용하고
 test데이터로 학습 시키기 위하여 
 하나의 데이터에서 두 세트를 분리시켜야 한다
 
 여기서 train 세트 밑에 test 세트를 붙였기 때문에 train 파일의 row number까지를 train, 나머지를 test로 나눈다
+
+```{r}
+train_index <- seq_len(nrow(w_train))         #train 데이터 의 행을 index로 표기
+train_2 <- alldata_fin2_exclude[train_index,] #train 행까지 train_2로 지정
+test_2 <- alldata_fin2_exclude[-train_index,] #전체 데이터에서 train index를 제외한 나머지를 test로 지정
+```
+
+
+### lm모델 적용하여 식 학습시키기
+
+```{r}
+lm_model <-                                   #lm_model에 
+  linear_reg() %>%                            #선형회귀 를 적용하고
+  set_engine("lm")                            #선형회귀에 적합시키는 식을 lm으로 지정한다
+
+lm_fit <- 
+  lm_model %>% 
+  fit(weekly_sales ~ . , data = train_2)   #lm_fit에 lm 방식으로 선형회귀 방식을 적용한 식에 fit으로 lm식 호출
+
+
+lm_fit_result <- predict(lm_fit, new_data = test_2) #위 train 데이터로 학습시킨 식에 test 데이터를 사용하고 예측
+lm_fit_result %>% head(5)
+
+lm_fit_result %>% mutate(.pred = sign(.pred) * (abs(.pred)^1/4)) #앞서 y값 변형한것 처럼 변환함
+```
+
+
+
 
 
 
