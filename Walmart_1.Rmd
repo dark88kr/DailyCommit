@@ -99,6 +99,7 @@ head(w_features,5)
 ### 중요함수 불러오기
 ```{r,results = 'hide',message=FALSE,warning=FALSE}
 library(tidymodels)
+library(tidyverse)
 library(car)
 ```
 
@@ -365,6 +366,14 @@ cpi와 unemployment는 -0.3 정도의 약한 상관관계가 있으나, 두 컬�
 ## recipe 함수로 모델 만들기
 
 ```{r}
+glimpse(alldata_fin2_exclude)
+
+alldata_fin2_exclude <- 
+  alldata_fin2_exclude %>% 
+  mutate(  date = as.Date(date))
+
+glimpse(alldata_fin2_exclude)
+
 wal_recipe <- 
   recipe(weekly_sales ~ . , data = alldata_fin2_exclude) %>%  
   update_role(type, new_role = "ID") %>%                               #type 컬럼을 ID로 업데이트 
@@ -394,20 +403,10 @@ bake 함수로로 recipe로 정의 된 전처리 방법과 실제 전처리 과�
 
 
 ```{r}
-
-glimpse(alldata_fin2_exclude)
-
-alldata_fin2_exclude <- 
-  alldata_fin2_exclude %>% mutate(
-    date = as.Date(date))
-
 wal_recipe_prep <- prep(wal_recipe, training = alldata_fin2_exclude)
 wal_recipe_prep
-
 wal_all_data <- bake(wal_recipe_prep,new_data = alldata_fin2_exclude)
-
 names(wal_all_data)
-
 ```
 
 ### 전처리 이후 데이터 나누기
@@ -441,9 +440,21 @@ lm_fit_result <- predict(lm_fit, new_data = test_2) #위 train 데이터로 학�
 lm_fit_result %>% head(5)
 
 lm_fit_result %>% mutate(.pred = sign(.pred) * (abs(.pred)^1/4)) #앞서 y값 변형한것 처럼 변환함
+
+
+final <- read_csv("sampleSubmission.csv.zip")  #캐글에 제출하는 파일 불러오기
+final
+final$Weekly_Sales <- lm_fit_result$.pred      #불러온 파일에 예측한 값 넣기
+
+write.csv(final,row.names = FALSE,"Wal_lm_with_tidymodel.csv")  
+#제출양식에 예측 값 넣고 새로운 파일 만들기,
+#row.names = F는 새로운 파일 만들때 첫번째 컬럼이 인덱스로 생성되는 것을 막기 위해 
 ```
 
 
+만들어진 wal_lm_with_tidymodel.csv를 캐글에 제출하고 점수를 "19826.69294" 받았다.
+
+첫번째 캐글 도전이었고 사용했던 함수와 방법들을 한번 더 정리하여 마무리 지을 예정이다.
 
 
 
