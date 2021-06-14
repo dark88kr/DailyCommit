@@ -99,3 +99,14 @@ mpg <- as.data.frame(ggplot2::mpg)
 # 독서로 대체
 #review
 
+
+w_train$Weekly_Sales
+plot(w_train$Weekly_Sales)
+hist(w_train$Weekly_Sales)
+summary(w_train)
+summary(w_train)
+
+w_train %>% group_by(IsHoliday) %>% summarise(mean = mean(Weekly_Sales))
+
+w_train %>% group_by(Dept) %>% summarise(mean = mean(Weekly_Sales)) %>% 
+  ggplot(aes(x=Dept)) +geom_histogram()         
