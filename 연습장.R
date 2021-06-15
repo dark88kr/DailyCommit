@@ -109,4 +109,9 @@ summary(w_train)
 w_train %>% group_by(IsHoliday) %>% summarise(mean = mean(Weekly_Sales))
 
 w_train %>% group_by(Dept) %>% summarise(mean = mean(Weekly_Sales)) %>% 
-  ggplot(aes(x=Dept)) +geom_histogram()         
+  ggplot(aes(x=Dept)) +geom_histogram()    
+
+w_train %>% head(5)
+
+ggplot(data=w_train) + geom_histogram(aes(x = Store, y=Weekly_Sales))
+
