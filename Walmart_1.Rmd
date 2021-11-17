@@ -1,0 +1,462 @@
+---
+title: "Walmart data_predict weekly sales_regression"
+author: "yonggi.yeom"
+date: "2021-05-10"
+output:
+  html_document: null
+  pdf_document: default
+  df_print: paged
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+# 캐글의 Walmart 데이터 활용
+
+캐글의 walmart 데이터를 이용하여 회귀분석으로 값 예측 및 캐글에 분석 결과 제출이 목표이며
+ISSAC님의 캐글의 글과 유투브를 참고하고, 필요한 함수는 COPY하여 사용하였음을 미리 알려두는 바이다.
+
+## 이번 프로젝트의 목표
+**EDA** 과정에서는 개미가 먹이를 탐색하듯이 방향성없이 각 컬럼값을 최대한 내 궁금증이 풀릴때까지
+그래프도 그려보고, 기술적 분석 하여 충분히 이해가 되도록 탐색 예정이다
+
+결과 제출이 가시적인 목표이지만, 전체 데이터를 탐색하고 내가 필요한 플롯을 그려보고 스스로 이해하는 과정이
+이번 프로젝트의 핵심이다.
+
+속도보다는 방향성에, 방향성보다는 탐색하는 과정에 대한 이해와 필요한 기술을 찾아보고 
+내가 스스로 소화하는 것이 목표이다
+
+
+## Walmart 데이터의 구성 및 소개
+
+45개의 월마트 상점의 데이터와 각 상정의 sales 를 예측하는 것이 목표이다
+
+또한 프로모션 인한 이벤트를 진행하며, 이는 markdown 컬럼으로 나타나며, 
+이러한 이벤트는 슈퍼볼, 노동절, 추수감사절, 크리스마스 이전에 진행된다 
+공휴일을 포함하는 주의 sale의 예측값은 평가에서 5배의 가중치가 부여 된다.
+
+### Walmart 데이터 구성
+
+#### stores.csv
+45개 상점의 유형과 크기를 나타낸다
+
+```{r}
+w_stores <- read.csv("w_stores.csv")
+head(w_stores,5)
+```
+
+#### train.csv
+
+2010-02-05 부터 2012-11-01 까지의 데이터가 포함된 훈련 데이터이며 컬럼은 아래와 같다
+
+Store - 상점번호
+Dept - 부서번호
+Date - 주(week)
+Weekly_Sales -  지정된 상점에서 지정된 부서의 판매(y, 종속변수)
+IsHoliday - 특별한 휴일이 포함된 주인지 아닌지 (위의 stores 데이터에서 이야기하는 공휴일 포함주)
+
+```{r}
+w_train <-  read.csv("w_train.csv")
+head(w_train, 5)
+```
+
+#### test
+
+Weekly_Sales 컬럼을 제외하고 train 데이터와 완전히 동일하다.
+
+```{r}
+w_test <- read.csv("w_test.csv")
+head(w_test,5)
+```
+
+#### features
+
+이 파일에는 지정된 날짜의 상점, 부서 및 지역 활동과 추가 데이터가 포함되어 있으며 컬럼은 아래와 같다
+
+Store - 상점번호
+Date - 주(week)
+Temperature - 해당 지역의 평균 온도 
+Fuel_Price - 해당 지역의 연료 비용
+MarkDown1-5 - 실행중인 프로모션과 관련된 데이터이며 2011년 11월 이후만 사용 가능 하며 모든 상점에서 항상사용x
+              빈칸은 NA로 표기됨
+CPI - 소비자 물가 지수
+Unemployment - 실업
+IsHoliday - 특별한 휴일이 포함된 주인지 아닌지 (위의 stores 데이터에서 이야기하는 공휴일 포함주)
+
+FYI
+Super Bowl: 12-Feb-10, 11-Feb-11, 10-Feb-12, 8-Feb-13
+Labor Day: 10-Sep-10, 9-Sep-11, 7-Sep-12, 6-Sep-13
+Thanksgiving: 26-Nov-10, 25-Nov-11, 23-Nov-12, 29-Nov-13
+Christmas: 31-Dec-10, 30-Dec-11, 28-Dec-12, 27-Dec-13
+
+```{r}
+w_features <- read.csv("w_features.csv")
+head(w_features,5)
+```
+
+### 중요함수 불러오기
+```{r,results = 'hide',message=FALSE,warning=FALSE}
+library(tidymodels)
+library(tidyverse)
+library(car)
+```
+
+## 데이터 셋 합치기
+
+### train 과 test 셋 합치기
+
+train 데이터와 test 데이터를 합치고 나머지 데이터셋 까지 합쳐서 전처리를 진행해야지만
+test셋과 train 셋의 전처리 과정이 동일하기 때문에 오류 없이 예측 결과가 잘 나올수 있다.
+
+합치는 과정은 r 기본 함수인 rbind와 tidy함수인 bind_rows가 있는데 rbind 사용시 test 셋과 train 셋의
+컬럼 수가 달라서 오류가 발생한다, 따라서 가장 기본이 되는 train 셋과 test 셋 합칠때는 bind_rows 사용한다
+
+```{r}
+alldata <- bind_rows(w_train,w_test)
+
+alldata %>% head(5)
+alldata %>% tail(5)
+```
+
+train 셋이 위로 test 셋이 아래로 합쳐 지면서 위의 데이터는 Weekly_Sales 컬럼의 값은 있지만 
+아래의 데이터는 해당 컬럼의 값이 NA로 표기 된다
+
+### alldata와 stores 데이터 합치기
+
+```{r,results="hide"}
+alldata2 <-  alldata %>% left_join(w_stores,by="Store")
+```
+
+```{r}
+alldata2 %>% names()
+alldata2 %>% head(5)
+```
+
+### alldata2와 features합치기
+
+```{r}
+alldata_fin <- alldata2 %>% left_join(w_features,by = c("Store","Date"))
+alldata_fin %>% names()
+```
+
+
+## 전체 합쳐진 데이터로 전치리 시작
+
+### 같은 컬럼인 IsHoliday.x, IsHoliday.y 중 하나의 컬럼을 삭제하고 컬럼명 변경하기
+
+아래 식에서 확인할수 있듯이 같은 컬럼이 두번 들어 가 있다.
+
+```{r}
+alldata_fin %>% select(IsHoliday.x,IsHoliday.y) %>% head(10)
+```
+
+둘중 하나를 삭제하고 남은 하나의 이름을 변경하기 위해 select 함수 사용 하여 마지막 변수를 제외하고
+다시 데이터로 집어 넣는다
+그리고 names 함수로 5번째 컬럼인 IsHoliday.x의 컬럼을 IsHoliday로 변경한다.
+
+```{r}
+alldata_fin2 <-  alldata_fin %>% select(1:16) 
+names(alldata_fin2)[5] <- c("IsHoliday")
+alldata_fin2 %>% colnames()
+```
+
+컬럼의 이름의 시작이 대문자로 시작하여 변수를 사용하기 어려움이 있어 소문자로 변경한다.
+
+```{r}
+colnames(alldata_fin2) <- tolower(colnames(alldata_fin2))
+colnames(alldata_fin2)
+```
+
+
+### 컬럼 탐색 하기
+```{r,results = 'hide',message=FALSE,warning=FALSE}
+library(skimr)
+skimr::skim(alldata_fin2)
+
+```
+
+skimr 함수를 통해서 각 컬럼의 na 값과 컬럼의 특성을 확인 가능하다 
+numeric변수가 아닌 설명형 변수라면 각 범주의 변수의 수 만큼의 수치형 메트릭스로 변경해야한다(modle.metrix 사용)
+
+일단 markdown1~5까지의 총 5개의 변수가 numeric변수라는게 너무 이해가 안된다.
+markdown 컬럼부터 확인해 보자
+
+```{r}
+promotion <- alldata_fin2 %>% select(10:14)
+promotion %>% colnames()
+
+```
+
+해당 컬럼의 값은 markdown 즉 프로모션을 진행 했을때 나오는 소득을 표기한 값으로 당연히 numeric 변수이며 
+프로모션이 자주 있는 것이 아니기 때문에 na값이 많을 수 밖에 없다.
+
+
+
+해당 na 값을 어떻데 처리할지 모르겟지만 일단 다른 변수 부터 살펴 보자
+
+#### weeklu_sales Y값부터
+
+```{r}
+hist(w_train$Weekly_Sales)
+
+```
+
+왼쪽으로 치우쳐진 모습으로 car 패키지의 powerTransform 사용하여 변수 변환 확인해 보려 했으나, 
+컬럼의 값이 음수가 포함되어 있어 해당 함수를 사용하지 못하였다.
+일반적으로 위 그래프 처럼 멱함수의 그래프 모습을 지닌 변수의 경우, 
+log 변환이나, 제곱근 또는 둘다 시행 할수도 있어 각각의 그래프를 확인해 보자
+
+변수 변환에 관해서는 ##### https://www.kaggle.com/issactoast/korean-elaticnet-with-tidymodels
+참고 하였다.
+
+간단한 변수 변환이 아닌 sign 함수와 abs 그리고, sign과 log, abs를 함께사용하는 코드를 사용하는지 모르겠지만
+현재 멱분포를 지니고 있는 y값의 변수 변환을 가장 정규분포와 비슷하게 변경하는 방법이라서 
+해당 함수를 사용 하였으며 이해를 돕기 위해 
+모든 그래프를 보여 주고 그중, 가장 독립분포를 따르는 제곱근 변환을 선택하였다
+
+```{r}
+w_train %>% ggplot(aes(x=sign(Weekly_Sales))) + geom_histogram()
+w_train %>% ggplot(aes(x=abs(Weekly_Sales))) + geom_histogram()
+w_train %>% ggplot(aes(x =sign(Weekly_Sales)*log(abs(Weekly_Sales)+2))) + geom_histogram()
+w_train %>% ggplot(aes(x =sign(Weekly_Sales)*log(abs(Weekly_Sales)+1))) + geom_histogram()
+w_train %>% ggplot(aes(x=sign(Weekly_Sales)*(abs(Weekly_Sales))^(1/4))) + geom_histogram() #선택
+w_train %>% ggplot(aes(x=sign(Weekly_Sales)*(abs(Weekly_Sales))^(1/5))) + geom_histogram()
+```
+
+#### Markdown 간의 상관관계 확인 및 na값 처리
+
+#### 상관관계 확인
+
+Markdown 은 프로모션의 값을 난타낸 변수이고, 해당 변수는 na 값이 많아서 상관관계가 높은 변수부터 제외할 예정이다
+
+```{r}
+library(naniar)
+w_features %>% select_if(~sum(is.na(.))>0) %>%   gg_miss_var() #na가 있는 컬럼 확인하고 그림 그리기
+
+w_features %>% select(5:9)-> promo #Markdown 만 모아서 분석하기
+
+plot(promo) #상관관계 그림 그리기
+cor(promo,use = "pairwise.complete.obs") #상관계 확인
+
+promo_exclude_mark4 <- promo %>% select(-MarkDown4) #1번과 4번의 강한 상관관계로 4번을 제외하고 다시계산
+plot(promo_exclude_mark4)
+cor(promo_exclude_mark4, use = "pairwise.complete.obs")
+
+alldata_fin2_exclude <- alldata_fin2 %>% select(-"markdown4")
+
+```
+
+#### na값 채우기
+
+해당 컬럼은 이벵트 행사 발생했을 경우 생기는 sale 금액이 들어가는 컬럼이므로, na값은 행사가 없어서 sale가 발생하지 않았다는 의미로 해석할 수 있기 때문에 na 값을 0 으로 대체 하고자 한다.
+
+```{r}
+alldata_fin2_exclude <-  mutate_at(alldata_fin2_exclude, c("markdown1","markdown2","markdown3","markdown5"), ~replace(.,is.na(.),0))
+skimr::skim(alldata_fin2_exclude)
+```
+
+na값이 정상적으로 0 값으로 대체되었음을 확인 할수 있다.
+
+### cpi와 unemployment na 값 확인 하기
+
+```{r}
+alldata_fin2_exclude %>% 
+  mutate(year = lubridate::year(date)) %>% 
+  mutate(month = lubridate :: month(date)) %>% 
+  group_by(year,month) %>% 
+  summarise(count_na_cpi = sum(is.na(cpi)),
+            count_na_unemp = sum(is.na(unemployment))) %>% 
+  filter(count_na_cpi > 0 | count_na_unemp > 0)
+
+```
+
+해당 값을 확인하면 13년 5,6,7 3개월에만 해당 값이 na로 입력되어있다.
+해당 변수의 경우 na 값을 0으로 대체가 불가능 하다, 
+소비자 물가 지수와 실업률의 경우 0의 값이 나올수 없기 때문에 다른 값으로 대체해야한다.
+
+해당값 대체를 위해서 조금더 자세하게 두 변수를 살펴보자
+
+```{r}
+alldata_fin2_exclude %>%
+  mutate(year = lubridate::year(date)) %>% 
+  mutate(month = lubridate::month(date))%>%
+  select(year,month,cpi,unemployment)->cpi_unemp
+
+cpi_unemp %>% filter(year == "2013") %>% select(month) %>% distinct() #2013년도는 1월부터 7월까지 데이터가 있다.
+
+cpi_unemp %>% 
+  group_by(year) %>% 
+  summarise(cpi_mean = mean(cpi),
+            unemp_mean = mean(unemployment))
+
+cpi_unemp %>% 
+  group_by(year) %>% 
+  summarise(cpi_mean = mean(cpi),
+            unemp_mean = mean(unemployment)) #년도별 추세
+
+cpi_unemp %>% 
+  group_by(month) %>% 
+  summarise(cpi_mean = mean(cpi),
+            unemp_mean = mean(unemployment))
+
+cpi_unemp %>% 
+  group_by(month) %>%
+  filter(month == "5"| month == "6"| month == "7") %>% 
+  summarise(cpi_mean = mean(cpi,na.rm = T),
+            unemp_mean = mean(unemployment,na.rm = T)) #월별 추세
+
+#년도별 추세를 볼때 소비자 물가지수 (cpi)는 증가 하고, 실업률(unemployment)는 감소 있으나
+#월별 추세를 봤을때는 두 변수의 추세가 뚜렷하지 않다.
+#2013년도는 지난 2년보다 결제 상황이 좋아지고 있다는 신호로 볼수 있어
+#2013년 평균값을 사용하기로 결정
+
+x <- alldata_fin2_exclude$cpi
+alldata_fin2_exclude$cpi <- ifelse(is.na(x),"177",x)
+alldata_fin2_exclude$cpi <- as.numeric(alldata_fin2_exclude$cpi)
+y <- alldata_fin2_exclude$unemployment
+alldata_fin2_exclude$unemployment <- ifelse(is.na(y),"6.83",y)
+alldata_fin2_exclude$unemployment <- as.numeric(alldata_fin2_exclude$unemployment)
+
+summary(alldata_fin2_exclude)
+```
+
+### 휴일 변수의 비중과  weekly_sales의 관계 확인 
+
+```{r}
+alldata_fin2_exclude %>% 
+  count(isholiday) %>%
+  mutate(prop = n/sum(n))
+
+alldata_fin2_exclude %>% 
+  mutate(isholiday = factor(isholiday)) %>% 
+  group_by(isholiday) %>% 
+  summarise(sale = mean(weekly_sales,na.rm = T))
+
+alldata_fin2_exclude %>% 
+  count(type) %>% 
+  mutate(prop = n/sum(n))
+
+alldata_fin2_exclude %>% 
+  group_by(type) %>% 
+  summarise(sale = mean(weekly_sales,na.rm = T))
+
+```
+
+휴일의 비중은 0.7% 정도이며 평균 금액은 2000달러 이상의 차이를 보여준다
+따라서 휴일 컬럼은 weekly sale 의 예측에 중요한 변수라는 것을 알수 있다.
+
+### 소비자 물가지수, 실업률과 sale 관계
+
+세 변수 모두 연속형 수치를 가지고 있는 변수 이다.
+전체 데이터의 컬럼값을 사용할 예정인데, cor 함수의 경우 na값이 있으면 전체 값을 na로 반환한다
+따라서 na가 있는 row를 삭제 하는 방법과 na가 있는 위치에서 연산을 건너뛰는 방법이 있다
+1. use =  "complete.obs" - na 가 있는 row 삭제
+2. use = "pairwise.complete.obs" - na가 있는 위치에서 연산 스킵
+
+```{r}
+alldata_fin2_exclude %>% select(cpi,unemployment,weekly_sales) %>% cor(use = "pairwise.complete.obs")
+
+```
+
+cpi와 unemployment는 -0.3 정도의 약한 상관관계가 있으나, 두 컬럼 모두 weekly_sales와는 관계가 낮았다
+
+
+## recipe 함수로 모델 만들기
+
+```{r}
+glimpse(alldata_fin2_exclude)
+
+alldata_fin2_exclude <- 
+  alldata_fin2_exclude %>% 
+  mutate(  date = as.Date(date))
+
+glimpse(alldata_fin2_exclude)
+
+wal_recipe <- 
+  recipe(weekly_sales ~ . , data = alldata_fin2_exclude) %>%  
+  update_role(type, new_role = "ID") %>%                               #type 컬럼을 ID로 업데이트 
+  step_date(date, features = c("dow", "month")) %>%                    #월과 요일 컬럼 생성
+  step_holiday(date, holidays = timeDate :: listHolidays("US")) %>% 
+  step_rm(date) %>%   #날짜 기준으로 timeDate의 패키지에서 미국 휴일에 포함되는지에 대한 이진 컬럼생성 후 삭제
+  step_normalize(all_numeric(), -all_outcomes()) %>% #numaeric 컬럼중 outcome 빼고 평균빼고 분산 나눠서 표준화
+  step_zv(all_predictors()) #분산이 0인 변수 제거
+
+wal_recipe
+  
+```
+
+날짜를 숫자(numeric)으로 변경하면 엑셀처럼 숫자가 나온다
+날짜를 숫자로 변경하면 선형회귀로 결과 도출할때 선형 추세의 형태를 가지게 되므로 이점이 될수 있다
+하지만 날짜 자체에서 의미있는 변수를 추출할수도 있다
+요일이나 달, 그리고 날짜가 공휴일인지 등의 의미를 추출할수 잇다.
+
+recipe 함수로 전처리 방식을 입력해두고 prep 함수로 recipe 함수와 training 데이터를 지정하여
+하나의 데이터 프레임에 입력해 두고 해당 방식을 기존 전체 데이터와 합쳐서 전처리가 끝난 전체 데이터로 만들어 준다
+
+전처리 과정에서 date 함수를 통해 요일과 날짜를 이끌어 냈으나 실제 데이터에서 날짜 형식이 factor로 지정 되어 있어
+date로 변경해 주는 과정을 한번 더 커치고 
+
+bake 함수로로 recipe로 정의 된 전처리 방법과 실제 전처리 과정을 거치게 되는 데이터를 지정하여 
+전처리 과정을 완료해 준다
+
+
+```{r}
+wal_recipe_prep <- prep(wal_recipe, training = alldata_fin2_exclude)
+wal_recipe_prep
+wal_all_data <- bake(wal_recipe_prep,new_data = alldata_fin2_exclude)
+names(wal_all_data)
+```
+
+### 전처리 이후 데이터 나누기
+
+하나의 데이터로 전처리 작업을 끝낸 이후 train과 test 데이터를 분리하여 train으로 적용하고
+test데이터로 학습 시키기 위하여 
+하나의 데이터에서 두 세트를 분리시켜야 한다
+
+여기서 train 세트 밑에 test 세트를 붙였기 때문에 train 파일의 row number까지를 train, 나머지를 test로 나눈다
+
+```{r}
+train_index <- seq_len(nrow(w_train))         #train 데이터 의 행을 index로 표기
+train_2 <- alldata_fin2_exclude[train_index,] #train 행까지 train_2로 지정
+test_2 <- alldata_fin2_exclude[-train_index,] #전체 데이터에서 train index를 제외한 나머지를 test로 지정
+```
+
+
+### lm모델 적용하여 식 학습시키기
+
+```{r}
+lm_model <-                                   #lm_model에 
+  linear_reg() %>%                            #선형회귀 를 적용하고
+  set_engine("lm")                            #선형회귀에 적합시키는 식을 lm으로 지정한다
+
+lm_fit <- 
+  lm_model %>% 
+  fit(weekly_sales ~ . , data = train_2)   #lm_fit에 lm 방식으로 선형회귀 방식을 적용한 식에 fit으로 lm식 호출
+
+
+lm_fit_result <- predict(lm_fit, new_data = test_2) #위 train 데이터로 학습시킨 식에 test 데이터를 사용하고 예측
+lm_fit_result %>% head(5)
+
+lm_fit_result %>% mutate(.pred = sign(.pred) * (abs(.pred)^1/4)) #앞서 y값 변형한것 처럼 변환함
+
+
+final <- read_csv("sampleSubmission.csv.zip")  #캐글에 제출하는 파일 불러오기
+final
+final$Weekly_Sales <- lm_fit_result$.pred      #불러온 파일에 예측한 값 넣기
+
+write.csv(final,row.names = FALSE,"Wal_lm_with_tidymodel.csv")  
+#제출양식에 예측 값 넣고 새로운 파일 만들기,
+#row.names = F는 새로운 파일 만들때 첫번째 컬럼이 인덱스로 생성되는 것을 막기 위해 
+```
+
+
+만들어진 wal_lm_with_tidymodel.csv를 캐글에 제출하고 점수를 "19826.69294" 받았다.
+
+첫번째 캐글 도전이었고 사용했던 함수와 방법들을 한번 더 정리하여 마무리 지을 예정이다.
+
+
+
+
+
