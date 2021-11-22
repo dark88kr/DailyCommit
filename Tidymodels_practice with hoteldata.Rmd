@@ -14,8 +14,13 @@ tidymodel은 분석모델을 위한 패키지이고 기존의 분석을 위해�
 ## Install Package or Library Package
 ```{r}
 library(tidymodels)
-
+library(tidyverse)
+library(skimr)
 
 ```
 
-commit
+해당 데이터는 #Julia Silge의 홈페이지에서 다운 가능 하다
+```{r}
+hotels <- readr::read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-02-11/hotels.csv")
+```
+
