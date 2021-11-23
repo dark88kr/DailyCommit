@@ -16,6 +16,8 @@ tidymodel은 분석모델을 위한 패키지이고 기존의 분석을 위해�
 library(tidymodels)
 library(tidyverse)
 library(skimr)
+library(GGally)
+library(DT)
 
 ```
 
@@ -23,4 +25,97 @@ library(skimr)
 ```{r}
 hotels <- readr::read_csv("https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-02-11/hotels.csv")
 ```
+
+HOTEL데이터에는 예약을 취소한 사람들의 데이터도 들어 있는데
+많은 정보는 Check In 및 숙박을 진행하면서 쌓이는 경우가 많기 때문에
+취소자의 데이터는 삭제한다
+
+아기 동반의 경우에도 children과 babise 두개의 컬럼으로 이루어 져 있어서
+하나의 컬럼으로 합치고
+주차 장소 요청의 경우에도 binary 컬럼으로 변경한다
+
+```{r}
+hotels_stay <- hotels %>%
+  filter(is_canceled == 0 ) %>% 
+  mutate(children = case_when(
+    children + babies > 0 ~ "children",
+    TRUE ~ "none"),
+    required_car_parking_spaces = case_when(
+      required_car_parking_spaces >0 ~ "parking",
+      TRUE ~ "none")) %>% 
+  select(-is_canceled, -reservation_status, -babies)
+
+hotels_stay
+```
+
+## 데이터 탐색
+
+전체 데이터를 확인하는 가장 평한 방법중 하나는 skimr 함수를 사용 하는 것이다
+```{r}
+skim(hotels_stay)
+
+#str(hotels_stay) str로 확인하면 각 컬럼의 특성을 편하게 확인 할수 있다
+```
+
+
+아이가 있는 경우 그렇지 않은 경우에 비해서 사용 금액의 차이가 있는가?
+사용금액의 차이가 호델 종류와 관계가 있는가?
+
+```{r}
+aggregate(adr ~ children, data = hotels_stay, mean)
+aggregate(adr ~ children + hotel, data = hotels_stay, mean)
+aggregate(adr ~ hotel, data = hotels_stay, mean)
+
+hotels_stay %>% select(children,adr) %>% 
+  ggplot(aes(x= children, y= adr))+
+  geom_boxplot()
+
+```
+
+아이가 있는 경우, 그러지 않은 경우보다 호텔과 리조트 모두에서 사용금액이 많으 점을 확인 할 수 있었다
+
+
+일년중 어느 달에 많은 숙박이 이루어 졌는지 확인 하자
+```{r}
+hotels_stay %>% 
+  mutate(arrival_date_month = factor(arrival_date_month, 
+                                     levels = month.name)) %>% 
+  count(hotel,arrival_date_month,children) %>% 
+  group_by(hotel,children) %>% 
+  mutate(proprtion = n/sum(n)) %>% 
+  ggplot(aes(arrival_date_month,proprtion,fill = children))+
+  geom_col(position = "dodge")+
+  scale_y_continuous(labels = scales::percent_format())+
+  facet_wrap(~hotel,nrow=2)+
+  labs(x= NULL, y="proportion of hotel stays",fill = NULL)
+ 
+
+```
+
+아이를 동반한 여행에서 호텔과 리조트 모두 7, 8월에 숙박이 몰리는 상황을 확인 할수 있다
+
+주차공간의 경우 아이를 동반한 경우가 그렇지 않은 경우보다 더 많이 필요한가?
+그것이 호텔별로 차이가 있는가?
+
+```{r}
+hotels_stay %>% 
+  count(hotel, required_car_parking_spaces, children) %>% 
+  group_by(hotel, children) %>% 
+  mutate(proportion = n / sum(n)) %>% 
+  ggplot(aes(required_car_parking_spaces,proportion,fill = children))+
+  geom_col(position = "dodge")+
+  scale_y_continuous(labels = scales::percent_format())+
+  facet_wrap(~hotel, nrow=2)+
+  labs(x= NULL, y = "proportion of hotel parking space", fill = NULL)
+
+
+```
+
+호텔과 리조트 모두 아이가 있고 없고 를 떠나서 많은 비율로 주차장 자리가 필요 없다고 한다....
+나도 해외 여행이면,,, 운전하기 싫겠다.
+
+
+
+
+
 
